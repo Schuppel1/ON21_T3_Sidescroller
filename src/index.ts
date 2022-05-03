@@ -53,14 +53,22 @@ let context = canvas.getContext("2d");
 //Map Constante Gravitation. (Die Fallgeschwindigkeit/pysikForce.y nimmt beim fallen zu.)
 const gravitiy:number = .1;
 
+enum Status {
+    Jumping, Normal, Duck
+}
 //Modul auslagern!!!
 class Player {
+
+
+    
     height: number;
     width: number;
     position: { x: number; y: number; };
     pysikForce: { x: number; y: number; };
+    playerStatus: Status;
 
     constructor() {
+        this.playerStatus = Status.Normal;
         this.position = {
             x: 50,  // x Position des Spielers
             y: 50   // Y Position des Spielers
@@ -82,11 +90,13 @@ class Player {
     update(): void {
         this.eraseOldFrame();
         this.position.y += this.pysikForce.y;
+        console.log("Alteposition x" + this.position.x +" forceX "+ this.pysikForce.x + " Neueposition "+ this.position.x + this.pysikForce.x)
         this.position.x += this.pysikForce.x;
         //später auslagern und überprüfen auf Platformen. 
-        if(this.position.y + this.height + this.pysikForce.y <= canvas.height) {
+        if(this.position.y + this.height <= canvas.height) {
             this.pysikForce.y += gravitiy;
         } else {
+            this.playerStatus = Status.Normal;
             this.pysikForce.y = 0;
         }
         this.draw();
@@ -94,18 +104,101 @@ class Player {
 
     private eraseOldFrame(): void {
         // Ohne -1 bein der Y - Position gibt es Streifen. 
-        context?.clearRect(this.position.x, this.position.y-1, this.width, this.height);
+        context?.clearRect(this.position.x, this.position.y-2, this.width, this.height+10);
     }
+
+
+    moveHorizontal(force:number): void {
+        this.pysikForce.x = force;
+    }
+
+    jump(): void {
+        if(this.playerStatus == (Status.Normal || Status.Duck)) {
+            this.pysikForce.y += -10;
+            this.playerStatus = Status.Jumping;
+        }
+    }
+
 }
 
 
 
 const player: Player = new Player()
-
+let playerControlButtons = {
+    right: {
+        pressed: false
+    }, 
+    left: {
+        pressed: false
+    },
+    jump: {
+        pressed: false
+    } 
+}
 
 function animate(): void {
     requestAnimationFrame(animate)
+    playerMovementControl();
     player.update();
 }
 
 animate();
+
+//steuerung einmal taste wird gedrückt
+addEventListener('keydown', (event:KeyboardEvent) => {
+    switch(event.key) {
+        case "a":
+            // player.moveleft();
+            playerControlButtons.left.pressed=true;
+            break;
+        case "d":
+            // player.moveright();
+            playerControlButtons.right.pressed=true;
+            break;
+        case " ":
+            // player.jump();
+            playerControlButtons.jump.pressed=true;
+            break;
+        default:
+            break;
+    }
+});
+
+//steuerung taste wird losgelassen
+addEventListener('keyup', (event:KeyboardEvent) => {
+    switch(event.key) {
+        case "a":
+            // player.moveleft();
+            playerControlButtons.left.pressed=false;
+            break;
+        case "d":
+            // player.moveright();
+            playerControlButtons.right.pressed=false;
+            break;
+        case " ":
+            // player.jump();
+            playerControlButtons.jump.pressed=false;
+            break;
+        default:
+            break;
+    }
+});
+
+function playerMovementControl() {
+    let xSpeed = 3;
+    if(playerControlButtons.left.pressed) {
+        player.moveHorizontal(-xSpeed);
+
+    } else if(playerControlButtons.right.pressed) {
+        player.moveHorizontal(xSpeed);
+    }
+    else {
+        player.moveHorizontal(0);
+    }
+    
+    if(playerControlButtons.jump.pressed) {
+        player.jump();
+    }
+    
+
+}
