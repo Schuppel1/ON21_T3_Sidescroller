@@ -1,24 +1,27 @@
 //THIS IS THE ENTRY FILE - WRITE YOUR MAIN LOGIC HERE!
 
-import { helloWorld, Beispiel } from "./myModule";
-import { alertMe } from "./myOtherModule";
+// import { helloWorld, Beispiel } from "./myModule";
+// import { alertMe } from "./myOtherModule";
 
-console.log(helloWorld);
-customElements.define("my-beispiel", Beispiel);
+// console.log(helloWorld);
+// customElements.define("my-beispiel", Beispiel);
 
-alertMe();
+// alertMe();
 
-const myInputValue = document.querySelector<HTMLInputElement>("#myInput");
+// const myInputValue = document.querySelector<HTMLInputElement>("#myInput");
 
-const myInputValueAlternate = document.querySelector(
-  "#myInput"
-) as HTMLInputElement;
+// const myInputValueAlternate = document.querySelector(
+//   "#myInput"
+// ) as HTMLInputElement;
 
-document
-  .querySelector<HTMLInputElement>("#myInput")
-  ?.addEventListener("focus", doSmth);
+// document
+//   .querySelector<HTMLInputElement>("#myInput")
+//   ?.addEventListener("focus", doSmth);
 
-function doSmth(e: UIEvent) {
-  const val = e.target as HTMLInputElement;
-  console.log(e, val.value);
-}
+// function doSmth(e: UIEvent) {
+//   const val = e.target as HTMLInputElement;
+//   console.log(e, val.value);
+// }
+
+// Obere Einträge sind Beispieleinträge aus der Vorlage
+alert("bundlerTest")
