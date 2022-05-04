@@ -29,6 +29,7 @@
 let canvas: HTMLCanvasElement = document.getElementById("canvas-game") as HTMLCanvasElement
 //Größe setzen. Kann später verändert werden. 
 
+let plattforms: Plattform[] = []; //Hier sind alle Plattformen drin. 
 
 
 function setGamesize(): void {
@@ -41,7 +42,7 @@ function setGamesize(): void {
     canvas.width = window.innerWidth - 10;
 }
 
-setGamesize();
+
 
 window.addEventListener("resize", function () {
     setGamesize();
@@ -51,16 +52,13 @@ window.addEventListener("resize", function () {
 let context = canvas.getContext("2d");
 
 //Map Constante Gravitation. (Die Fallgeschwindigkeit/pysikForce.y nimmt beim fallen zu.)
-const gravitiy:number = .1;
+const gravitiy: number = .05;
 
 enum Status {
     Jumping, Normal, Duck
 }
-//Modul auslagern!!!
+//Modul auslagern!!!s
 class Player {
-
-
-    
     height: number;
     width: number;
     position: { x: number; y: number; };
@@ -71,7 +69,7 @@ class Player {
         this.playerStatus = Status.Normal;
         this.position = {
             x: 50,  // x Position des Spielers
-            y: 50   // Y Position des Spielers
+            y: 249   // Y Position des Spielers
         }
         this.pysikForce = {
             x: 0, // Kraft in x Richtung (könnte Wind sein)
@@ -88,76 +86,80 @@ class Player {
 
     // wird nach jedem Zeitintervall aufgerufen. Updatet die Position etc. 
     update(): void {
-        this.eraseOldFrame();
-        this.position.y += this.pysikForce.y;
-        console.log("Alteposition x" + this.position.x +" forceX "+ this.pysikForce.x + " Neueposition "+ this.position.x + this.pysikForce.x)
-        this.position.x += this.pysikForce.x;
-        //später auslagern und überprüfen auf Platformen. 
-        if(this.position.y + this.height <= canvas.height) {
-            this.pysikForce.y += gravitiy;
-        } else {
-            this.playerStatus = Status.Normal;
-            this.pysikForce.y = 0;
-        }
+        let roundString: String;
+        //this.eraseOldFrame();
+        roundString = (this.position.y + this.pysikForce.y).toFixed(3);
+        this.position.y = Number(roundString);
+        roundString = (this.position.x + this.pysikForce.x).toFixed(3);
+        this.position.x = Number(roundString);
         this.draw();
     }
 
     private eraseOldFrame(): void {
         // Ohne -1 bein der Y - Position gibt es Streifen. 
-        context?.clearRect(this.position.x, this.position.y-2, this.width, this.height+10);
+        context!.clearRect(this.position.x, this.position.y - 2, this.width, this.height + 2);
     }
 
 
-    moveHorizontal(force:number): void {
+    moveHorizontal(force: number): void {
         this.pysikForce.x = force;
     }
 
     jump(): void {
-        if(this.playerStatus == (Status.Normal || Status.Duck)) {
-            this.pysikForce.y += -10;
+        if (this.playerStatus == (Status.Normal || Status.Duck)) {
+            //this.pysikForce.y += -10;
+            this.pysikForce.y += -6.0;
             this.playerStatus = Status.Jumping;
         }
     }
 
 }
 
-
-
 const player: Player = new Player()
 let playerControlButtons = {
     right: {
         pressed: false
-    }, 
+    },
     left: {
         pressed: false
     },
     jump: {
         pressed: false
-    } 
+    }
 }
 
-function animate(): void {
-    requestAnimationFrame(animate)
-    playerMovementControl();
-    player.update();
-}
 
-animate();
+function collsion(player: Player, plattform: Plattform) {
+    let standOnPlattform: boolean = plattform.standOnTop(player);
+    //console.log(standOnPlattform)
+    if (standOnPlattform) {
+        player.playerStatus = Status.Normal;
+        player.pysikForce.y = 0;
+    } else if (player.position.y + player.height <= canvas.height) {
+
+        player.pysikForce.y += gravitiy;
+    } else {
+        if (player.pysikForce.y > 0) {
+            player.playerStatus = Status.Normal;
+            player.pysikForce.y = 0;
+        }
+    }
+}
 
 //steuerung einmal taste wird gedrückt
-addEventListener('keydown', (event:KeyboardEvent) => {
-    switch(event.key) {
+addEventListener('keydown', (event: KeyboardEvent) => {
+    switch (event.key) {
         case "a":
             // player.moveleft();
-            playerControlButtons.left.pressed=true;
+            playerControlButtons.left.pressed = true;
             break;
         case "d":
             // player.moveright();
-            playerControlButtons.right.pressed=true;
+            playerControlButtons.right.pressed = true;
             break;
         case " ":
             // player.jump();
-            playerControlButtons.jump.pressed=true;
+            playerControlButtons.jump.pressed = true;
             break;
         default:
             break;
@@ -165,19 +167,19 @@ addEventListener('keydown', (event:KeyboardEvent) => {
 });
 
 //steuerung taste wird losgelassen
-addEventListener('keyup', (event:KeyboardEvent) => {
-    switch(event.key) {
+addEventListener('keyup', (event: KeyboardEvent) => {
+    switch (event.key) {
         case "a":
             // player.moveleft();
-            playerControlButtons.left.pressed=false;
+            playerControlButtons.left.pressed = false;
             break;
         case "d":
             // player.moveright();
-            playerControlButtons.right.pressed=false;
+            playerControlButtons.right.pressed = false;
             break;
         case " ":
             // player.jump();
-            playerControlButtons.jump.pressed=false;
+            playerControlButtons.jump.pressed = false;
             break;
         default:
             break;
@@ -185,20 +187,83 @@ addEventListener('keyup', (event:KeyboardEvent) => {
 });
 
 function playerMovementControl() {
-    let xSpeed = 3;
-    if(playerControlButtons.left.pressed) {
+    let xSpeed = 2;
+    if (playerControlButtons.left.pressed) {
         player.moveHorizontal(-xSpeed);
 
-    } else if(playerControlButtons.right.pressed) {
+    } else if (playerControlButtons.right.pressed) {
         player.moveHorizontal(xSpeed);
     }
     else {
         player.moveHorizontal(0);
     }
-    
-    if(playerControlButtons.jump.pressed) {
+
+    if (playerControlButtons.jump.pressed) {
         player.jump();
     }
-    
-
 }
+
+class Plattform {
+    firmness: "solid" | "open" | "jumpable"; // If you walk through it (open), can jump through it button it (jumpable) or nothing (solid) 
+    position: {
+        x: number;
+        y: number;
+    };
+    width: number;
+    height: number;
+    constructor() {
+        this.firmness = "open";
+        this.position = {
+            x: 50,
+            y: 350
+        }
+        this.width = 300
+        this.height = 20
+    }
+
+    private draw(): void {
+        context!.fillStyle = 'blue'
+        context!.fillRect(this.position.x, this.position.y, this.width, this.height)
+    }
+
+    update(): void {
+        this.draw();
+    }
+
+    standOnTop(player: Player): boolean {
+        if (player.position.x + player.width >= this.position.x &&
+            player.position.x + 1 <= this.position.x + this.width) {
+            if (player.position.y + player.height + Math.min(player.pysikForce.y, gravitiy) <= this.position.y) {
+                if (player.position.y + player.height + Math.max(player.pysikForce.y, gravitiy) >= this.position.y - gravitiy) {
+                    if (player.pysikForce.y >= 0) {
+                        return true;
+                    }
+                } else {
+                }
+            } else {
+            }
+        }
+        return false;
+    }
+}
+
+
+const testPlattform: Plattform = new Plattform()
+plattforms.push(testPlattform);
+
+
+
+function animate(): void {
+    requestAnimationFrame(animate)
+    playerMovementControl();
+    context!.clearRect(0, 0, innerWidth, innerHeight);
+    testPlattform.update();
+    //console.log("Update Player: y: "+ player.position.y + " y+h :" + (player.position.y + player.height)  + " pysikForce " + player.pysikForce.y)
+    collsion(player, testPlattform)
+    player.update();
+}
+
+animate();
+setGamesize();
+
+//Video :35min
