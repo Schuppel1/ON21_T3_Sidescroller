@@ -31,6 +31,11 @@ let canvas: HTMLCanvasElement = document.getElementById("canvas-game") as HTMLCa
 
 let plattforms: Plattform[] = []; //Hier sind alle Plattformen drin. 
 
+let rightBarrier: number = 4 * innerWidth / 5; //Ab diesen Punkt wird der Bachground verschoben anstatt der Spieler
+let leftBarrier: number = innerWidth / 5; // Ab diesen Punkt wird der Bachground verschoben anstatt der Spieler
+
+
+
 
 function setGamesize(): void {
     let h1Element = document.querySelector("h1")!;
@@ -46,6 +51,9 @@ function setGamesize(): void {
 
 window.addEventListener("resize", function () {
     setGamesize();
+    drawBarrier();
+    rightBarrier = 4 * innerWidth / 5;
+    leftBarrier = innerWidth / 5
 });
 
 
@@ -68,7 +76,7 @@ class Player {
     constructor() {
         this.playerStatus = Status.Normal;
         this.position = {
-            x: 50,  // x Position des Spielers
+            x: leftBarrier + 10,  // x Position des Spielers
             y: 249   // Y Position des Spielers
         }
         this.pysikForce = {
@@ -102,7 +110,9 @@ class Player {
 
 
     moveHorizontal(force: number): void {
+
         this.pysikForce.x = force;
+
     }
 
     jump(): void {
@@ -189,10 +199,23 @@ addEventListener('keyup', (event: KeyboardEvent) => {
 function playerMovementControl() {
     let xSpeed = 2;
     if (playerControlButtons.left.pressed) {
-        player.moveHorizontal(-xSpeed);
+        if (player.position.x - xSpeed < leftBarrier) {
+            //Move Background
+            console.log("Barrier left!");
+            player.moveHorizontal(0);
 
+        } else {
+            player.moveHorizontal(-xSpeed);
+        }
     } else if (playerControlButtons.right.pressed) {
-        player.moveHorizontal(xSpeed);
+        if (player.position.x + player.width + xSpeed > rightBarrier) {
+            //Move Background
+            console.log("Barrier rigth!");
+            player.moveHorizontal(0);
+        } else {
+            player.moveHorizontal(xSpeed);
+        }
+
     }
     else {
         player.moveHorizontal(0);
@@ -201,6 +224,12 @@ function playerMovementControl() {
     if (playerControlButtons.jump.pressed) {
         player.jump();
     }
+}
+
+function drawBarrier() {
+    context!.fillStyle = 'black'
+    context!.fillRect(innerWidth / 5, 0, 1, innerHeight)
+    context!.fillRect(4 * innerWidth / 5, 0, 1, innerHeight)
 }
 
 class Plattform {
@@ -214,7 +243,7 @@ class Plattform {
     constructor() {
         this.firmness = "open";
         this.position = {
-            x: 50,
+            x: leftBarrier - 50,
             y: 350
         }
         this.width = 300
@@ -251,19 +280,32 @@ class Plattform {
 const testPlattform: Plattform = new Plattform()
 plattforms.push(testPlattform);
 
-
+function synchronCallNeeded(func: Function) {
+    func();
+    return new Promise((resolve, reject) => {
+        // resolve("something"); when you want to return something.
+    });
+}
 
 function animate(): void {
     requestAnimationFrame(animate)
-    playerMovementControl();
     context!.clearRect(0, 0, innerWidth, innerHeight);
-    testPlattform.update();
-    //console.log("Update Player: y: "+ player.position.y + " y+h :" + (player.position.y + player.height)  + " pysikForce " + player.pysikForce.y)
+
+    // synchronCallNeeded(playerMovementControl).then((resolve:any) => {
+    //     collsion(player, testPlattform)
+    //     // now you can call secondAfterInitMethod();
+    // });
+    
+    playerMovementControl();
     collsion(player, testPlattform)
+    
+    testPlattform.update();
     player.update();
+    drawBarrier();
 }
 
 animate();
 setGamesize();
+
 
 //Video :35min
