@@ -28,12 +28,12 @@
 // Canvas Element holen
 let canvas: HTMLCanvasElement = document.getElementById("canvas-game") as HTMLCanvasElement
 //Größe setzen. Kann später verändert werden. 
-
+let context = canvas.getContext("2d");
 let plattforms: Plattform[] = []; //Hier sind alle Plattformen drin. 
 
 let rightBarrier: number = 4 * innerWidth / 5; //Ab diesen Punkt wird der Bachground verschoben anstatt der Spieler
 let leftBarrier: number = innerWidth / 5; // Ab diesen Punkt wird der Bachground verschoben anstatt der Spieler
-
+let gameOverStatus: boolean = false;
 
 
 
@@ -43,7 +43,7 @@ function setGamesize(): void {
     let h1MarginTop: number = parseInt(getComputedStyle(h1Element).marginTop) + 1;
     let h1MarginBot: number = parseInt(getComputedStyle(h1Element).marginBottom) + 1;
 
-    canvas.height = window.innerHeight - h1Size - h1MarginTop - h1MarginBot - 5;
+    canvas.height = window.innerHeight - h1Size - h1MarginTop - h1MarginBot - 10;
     canvas.width = window.innerWidth - 10;
 }
 
@@ -57,7 +57,7 @@ window.addEventListener("resize", function () {
 });
 
 
-let context = canvas.getContext("2d");
+
 
 //Map Constante Gravitation. (Die Fallgeschwindigkeit/pysikForce.y nimmt beim fallen zu.)
 const gravitiy: number = .05;
@@ -73,6 +73,15 @@ class Player {
     pysikForce: { x: number; y: number; };
     playerStatus: Status;
 
+    frameDivider = 3; //animate ist bei 60fps durch 3 geteilt sind 20fps.  
+
+    sheet: HTMLImageElement = new Image();
+    runUrlBase: string = "./img/player/CuteGirlFiles/run/Run"
+    runImgCount: number = 20
+    idleUrlBase: string = "./img/player/CuteGirlFiles/idle/Idle"
+    idleImgCount: number = 16
+    aktuelImg: number = 0
+
     constructor() {
         this.playerStatus = Status.Normal;
         this.position = {
@@ -83,8 +92,8 @@ class Player {
             x: 0, // Kraft in x Richtung (könnte Wind sein)
             y: 0  // Gravitation nach unten
         }
-        this.width = 100  // Breite des Spielers
-        this.height = 100 // Höhe des Spielers
+        this.width = 75  // Breite des Spielers
+        this.height = 75 // Höhe des Spielers
     }
 
     private draw(): void {
@@ -94,13 +103,14 @@ class Player {
 
     // wird nach jedem Zeitintervall aufgerufen. Updatet die Position etc. 
     update(): void {
-        let roundString: String;
+        let roundString: string;
         //this.eraseOldFrame();
         roundString = (this.position.y + this.pysikForce.y).toFixed(3);
         this.position.y = Number(roundString);
         roundString = (this.position.x + this.pysikForce.x).toFixed(3);
         this.position.x = Number(roundString);
-        this.draw();
+        //this.draw();
+        this.animatemovement();
     }
 
     private eraseOldFrame(): void {
@@ -123,6 +133,45 @@ class Player {
         }
     }
 
+    private animatemovement(): void {
+
+
+
+        if (playerControlButtons.left.pressed) {
+            //movement left
+            if ((++this.frameDivider) % 3 == 0) {
+                this.aktuelImg = (this.aktuelImg + 1) % this.runImgCount
+            }
+            if (this.aktuelImg < 10) {
+                this.sheet.src = this.runUrlBase + "0" + this.aktuelImg.toString() + "left.png"
+            } else {
+                this.sheet.src = this.runUrlBase + this.aktuelImg.toString() + "left.png"
+            }
+        } else if (playerControlButtons.right.pressed) {
+            //movement right
+            if ((++this.frameDivider) % 3 == 0) {
+                this.aktuelImg = (this.aktuelImg + 1) % this.runImgCount
+            }
+            if (this.aktuelImg < 10) {
+                this.sheet.src = this.runUrlBase + "0" + this.aktuelImg.toString() + ".png"
+            } else {
+                this.sheet.src = this.runUrlBase + this.aktuelImg.toString() + ".png"
+            }
+        } else if (false) {
+            //jump
+        } else {
+            //Idle
+            if ((++this.frameDivider) % 3 == 0) {
+                this.aktuelImg = (this.aktuelImg + 1) % this.idleImgCount
+            }
+            this.sheet.src = this.idleUrlBase + this.aktuelImg.toString() + ".png"            
+        }
+
+
+        context!.drawImage(this.sheet,
+            0, 0, 416, 454,
+            this.position.x, this.position.y, 75, 75);
+    }
 }
 
 const player: Player = new Player()
@@ -135,16 +184,20 @@ let playerControlButtons = {
     },
     jump: {
         pressed: false
+    },
+    yes: {
+        pressed: false
     }
 }
 
 
-function collsion(player: Player, plattform: Plattform) {
+function collsion(player: Player, plattform: Plattform): boolean {
     let standOnPlattform: boolean = plattform.standOnTop(player);
     //console.log(standOnPlattform)
     if (standOnPlattform) {
         player.playerStatus = Status.Normal;
         player.pysikForce.y = 0;
+        return true;
     } else if (player.position.y + player.height <= canvas.height) {
 
         player.pysikForce.y += gravitiy;
@@ -154,6 +207,7 @@ function collsion(player: Player, plattform: Plattform) {
             player.pysikForce.y = 0;
         }
     }
+    return false;
 }
 
 //steuerung einmal taste wird gedrückt
@@ -170,6 +224,9 @@ addEventListener('keydown', (event: KeyboardEvent) => {
         case " ":
             // player.jump();
             playerControlButtons.jump.pressed = true;
+            break;
+        case "y":
+            playerControlButtons.yes.pressed = true;
             break;
         default:
             break;
@@ -191,39 +248,70 @@ addEventListener('keyup', (event: KeyboardEvent) => {
             // player.jump();
             playerControlButtons.jump.pressed = false;
             break;
+        case "y":
+            playerControlButtons.yes.pressed = false;
+            break;
         default:
             break;
     }
 });
 
-function playerMovementControl() {
+function playerMovementControl(): void {
     let xSpeed = 2;
-    if (playerControlButtons.left.pressed) {
-        if (player.position.x - xSpeed < leftBarrier) {
-            //Move Background
-            console.log("Barrier left!");
-            player.moveHorizontal(0);
+    if (!gameOverStatus) {
+        if (playerControlButtons.left.pressed) {
+            if (player.position.x - xSpeed < leftBarrier) {
+                controllBackground(-xSpeed);
+                player.moveHorizontal(0);
 
-        } else {
-            player.moveHorizontal(-xSpeed);
+            } else {
+                player.moveHorizontal(-xSpeed);
+            }
+        } else if (playerControlButtons.right.pressed) {
+            if (player.position.x + player.width + xSpeed > rightBarrier) {
+                controllBackground(xSpeed);
+                player.moveHorizontal(0);
+            } else {
+                player.moveHorizontal(xSpeed);
+            }
+
         }
-    } else if (playerControlButtons.right.pressed) {
-        if (player.position.x + player.width + xSpeed > rightBarrier) {
-            //Move Background
-            console.log("Barrier rigth!");
+        else {
             player.moveHorizontal(0);
-        } else {
-            player.moveHorizontal(xSpeed);
         }
 
-    }
-    else {
+        if (playerControlButtons.jump.pressed) {
+            player.jump();
+        }
+    } else {
         player.moveHorizontal(0);
     }
 
-    if (playerControlButtons.jump.pressed) {
-        player.jump();
+}
+
+function checkIfDead(): boolean {
+    if (player.position.y + player.height >= canvas.height) {
+        gameOver()
+        return true;
+    } else {
+        return false;
     }
+}
+
+function gameOver() {
+    context!.font = '48px serif';
+    context!.fillText('Game Over!!!', 200, 50);
+    context!.font = '20px serif';
+    context!.fillText('Willst es noch einmal Versuchen? y/n', 200, 75);
+    gameOverStatus = true;
+}
+
+//left = true; Hintergrund nach links verschieben. 
+function controllBackground(force: number): void {
+    plattforms.forEach(function (item) {
+        item.position.x -= force;
+    });
+    //HintergrundBild muss noch verschoben werden. Aber Async
 }
 
 function drawBarrier() {
@@ -240,14 +328,14 @@ class Plattform {
     };
     width: number;
     height: number;
-    constructor() {
+    constructor(xPosition: number, yPosition: number, width: number, height: number) {
         this.firmness = "open";
         this.position = {
-            x: leftBarrier - 50,
-            y: 350
+            x: xPosition,
+            y: yPosition
         }
-        this.width = 300
-        this.height = 20
+        this.width = width
+        this.height = height
     }
 
     private draw(): void {
@@ -277,35 +365,46 @@ class Plattform {
 }
 
 
-const testPlattform: Plattform = new Plattform()
-plattforms.push(testPlattform);
+const testPlattform: Plattform = new Plattform(leftBarrier - 50, 350, 300, 20)
+const bodenPlatte: Plattform = new Plattform(0, 400, 1200, 20)
 
-function synchronCallNeeded(func: Function) {
-    func();
-    return new Promise((resolve, reject) => {
-        // resolve("something"); when you want to return something.
-    });
+plattforms.push(testPlattform);
+plattforms.push(bodenPlatte);
+
+
+function pauseGame() {
+
 }
 
 function animate(): void {
-    requestAnimationFrame(animate)
-    context!.clearRect(0, 0, innerWidth, innerHeight);
-
-    // synchronCallNeeded(playerMovementControl).then((resolve:any) => {
-    //     collsion(player, testPlattform)
-    //     // now you can call secondAfterInitMethod();
-    // });
-    
     playerMovementControl();
-    collsion(player, testPlattform)
-    
-    testPlattform.update();
-    player.update();
-    drawBarrier();
-}
+    gameOverStatus = checkIfDead();
+    if (!gameOverStatus) {
+        collsion(player, testPlattform)
+    } else {
+        if (playerControlButtons.yes.pressed) {
+            //reset();
+            player.position.x = leftBarrier + 10
+            player.position.y = 0
+            gameOverStatus = false;
+        }
+    }
+    context!.clearRect(0, 0, innerWidth, innerHeight);
+    requestAnimationFrame(animate)
+    if (collsion(player, testPlattform)) { } else if (collsion(player, bodenPlatte)) { }
 
-animate();
+
+    testPlattform.update();
+    bodenPlatte.update();
+    player.update();
+    //drawBarrier();
+    checkIfDead();
+
+}
 setGamesize();
+animate();
+
+
 
 
 //Video :35min
