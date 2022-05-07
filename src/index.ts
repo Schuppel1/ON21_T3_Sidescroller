@@ -63,7 +63,7 @@ window.addEventListener("resize", function () {
 const gravitiy: number = .05;
 
 enum Status {
-    Jumping, Normal, Duck
+    Normal, JumpingLeft, JumpingRight, Dead
 }
 //Modul auslagern!!!s
 class Player {
@@ -80,7 +80,13 @@ class Player {
     runImgCount: number = 20
     idleUrlBase: string = "./img/player/CuteGirlFiles/idle/Idle"
     idleImgCount: number = 16
+    jumpUrlBase: string = "./img/player/CuteGirlFiles/jump/Jump"
+    jumpImgCount: number = 30
+    deadUrlBase: string = "./img/player/CuteGirlFiles/dead/Dead"
+    deadImgCount: number = 30
     aktuelImg: number = 0
+    aktuelUrl: string = ""
+    aktuelImgCount: number = 0
 
     constructor() {
         this.playerStatus = Status.Normal;
@@ -120,57 +126,82 @@ class Player {
 
 
     moveHorizontal(force: number): void {
-
         this.pysikForce.x = force;
-
     }
 
     jump(): void {
-        if (this.playerStatus == (Status.Normal || Status.Duck)) {
+        if (this.playerStatus == (Status.Normal)) {
             //this.pysikForce.y += -10;
             this.pysikForce.y += -6.0;
-            this.playerStatus = Status.Jumping;
+            if (playerControlButtons.left.pressed) {
+                this.playerStatus = Status.JumpingLeft;
+            } else {
+                this.playerStatus = Status.JumpingRight;
+            }
         }
     }
 
     private animatemovement(): void {
-
-
-
-        if (playerControlButtons.left.pressed) {
+        let left = false;
+        if (playerControlButtons.left.pressed && this.playerStatus == Status.Normal) {
             //movement left
-            if ((++this.frameDivider) % 3 == 0) {
-                this.aktuelImg = (this.aktuelImg + 1) % this.runImgCount
-            }
-            if (this.aktuelImg < 10) {
-                this.sheet.src = this.runUrlBase + "0" + this.aktuelImg.toString() + "left.png"
-            } else {
-                this.sheet.src = this.runUrlBase + this.aktuelImg.toString() + "left.png"
-            }
-        } else if (playerControlButtons.right.pressed) {
+            this.aktuelImgCount = this.runImgCount;
+            this.aktuelUrl = this.runUrlBase;
+            left = true;
+        } else if (playerControlButtons.right.pressed && this.playerStatus == Status.Normal) {
             //movement right
-            if ((++this.frameDivider) % 3 == 0) {
-                this.aktuelImg = (this.aktuelImg + 1) % this.runImgCount
-            }
-            if (this.aktuelImg < 10) {
-                this.sheet.src = this.runUrlBase + "0" + this.aktuelImg.toString() + ".png"
-            } else {
-                this.sheet.src = this.runUrlBase + this.aktuelImg.toString() + ".png"
-            }
-        } else if (false) {
-            //jump
+            this.aktuelImgCount = this.runImgCount;
+            this.aktuelUrl = this.runUrlBase;
+            left = false;
+        } else if (this.playerStatus == Status.JumpingLeft) {
+            //jump to the Left
+            this.aktuelImgCount = this.jumpImgCount;
+            this.aktuelUrl = this.jumpUrlBase;
+            left = true;
+        } else if (this.playerStatus == Status.JumpingRight) {
+            //jump to the right
+            this.aktuelImgCount = this.jumpImgCount;
+            this.aktuelUrl = this.jumpUrlBase;
+            left = false;
+        } else if (this.playerStatus == Status.Dead) {
+            //yo soy un poco dead
+            this.aktuelImgCount = this.deadImgCount;
+            this.aktuelUrl = this.deadUrlBase;
+            left = false;
         } else {
             //Idle
-            if ((++this.frameDivider) % 3 == 0) {
-                this.aktuelImg = (this.aktuelImg + 1) % this.idleImgCount
+            this.aktuelImgCount = this.idleImgCount;
+            this.aktuelUrl = this.idleUrlBase;
+            left = false;
+        }
+        if(this.playerStatus == Status.Dead) {
+            if ((++this.frameDivider) % 10 == 0) {
+                if(this.aktuelImg != this.aktuelImgCount -1) {
+                    this.aktuelImg = (this.aktuelImg + 1) % this.aktuelImgCount
+                }
             }
-            this.sheet.src = this.idleUrlBase + this.aktuelImg.toString() + ".png"            
+        }else {
+            if ((++this.frameDivider) % 3 == 0) {
+                this.aktuelImg = (this.aktuelImg + 1) % this.aktuelImgCount
+            }
         }
 
+        if (left) {
+            this.sheet.src = this.aktuelUrl + this.aktuelImg.toString() + "left" + ".png"
+        } else {
+            this.sheet.src = this.aktuelUrl + this.aktuelImg.toString() + ".png"
+        }
 
-        context!.drawImage(this.sheet,
-            0, 0, 416, 454,
-            this.position.x, this.position.y, 75, 75);
+        if(this.playerStatus == Status.Dead) {
+            context!.drawImage(this.sheet,
+                0, 0, 601, 502,
+                this.position.x, this.position.y, 75, 75);
+        } else {
+            context!.drawImage(this.sheet,
+                0, 0, 416, 454,
+                this.position.x, this.position.y, 75, 75);
+        }
+
     }
 }
 
@@ -291,7 +322,9 @@ function playerMovementControl(): void {
 
 function checkIfDead(): boolean {
     if (player.position.y + player.height >= canvas.height) {
+        player.playerStatus=Status.Dead
         gameOver()
+
         return true;
     } else {
         return false;
@@ -403,8 +436,3 @@ function animate(): void {
 }
 setGamesize();
 animate();
-
-
-
-
-//Video :35min
