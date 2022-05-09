@@ -296,6 +296,7 @@ function checkIfDead(): boolean {
 }
 
 function gameOver() {
+    context!.fillStyle = "white";
     context!.font = '48px serif';
     context!.fillText('Game Over!!!', 200, 50);
     context!.font = '20px serif';
