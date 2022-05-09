@@ -1,31 +1,3 @@
-//THIS IS THE ENTRY FILE - WRITE YOUR MAIN LOGIC HERE!
-
-// import { helloWorld, Beispiel } from "./myModule";
-// import { alertMe } from "./myOtherModule";
-
-// console.log(helloWorld);
-// customElements.define("my-beispiel", Beispiel);
-
-// alertMe();
-
-// const myInputValue = document.querySelector<HTMLInputElement>("#myInput");
-
-// const myInputValueAlternate = document.querySelector(
-//   "#myInput"
-// ) as HTMLInputElement;
-
-// document
-//   .querySelector<HTMLInputElement>("#myInput")
-//   ?.addEventListener("focus", doSmth);
-
-// function doSmth(e: UIEvent) {
-//   const val = e.target as HTMLInputElement;
-//   console.log(e, val.value);
-// }
-
-// Obere Einträge sind Beispieleinträge aus der Vorlage
-
-// Canvas Element holen
 let canvas: HTMLCanvasElement = document.getElementById("canvas-game") as HTMLCanvasElement
 //Größe setzen. Kann später verändert werden. 
 let context = canvas.getContext("2d");
@@ -35,6 +7,13 @@ let rightBarrier: number = 4 * innerWidth / 5; //Ab diesen Punkt wird der Bachgr
 let leftBarrier: number = innerWidth / 5; // Ab diesen Punkt wird der Bachground verschoben anstatt der Spieler
 let gameOverStatus: boolean = false;
 
+//1920x663
+let background: { picture: HTMLImageElement; src: string; deltaX: number } = {
+    picture: new Image(),
+    src: "./img/background/forest0.jpg",
+    deltaX: 0
+}
+background.picture.src = background.src
 
 
 function setGamesize(): void {
@@ -96,7 +75,7 @@ class Player {
         }
         this.pysikForce = {
             x: 0, // Kraft in x Richtung (könnte Wind sein)
-            y: 0  // Gravitation nach unten
+            y: 5  // Gravitation nach unten
         }
         this.width = 75  // Breite des Spielers
         this.height = 75 // Höhe des Spielers
@@ -115,8 +94,8 @@ class Player {
         this.position.y = Number(roundString);
         roundString = (this.position.x + this.pysikForce.x).toFixed(3);
         this.position.x = Number(roundString);
-        //this.draw();
         this.animatemovement();
+        // this.draw();
     }
 
     private eraseOldFrame(): void {
@@ -132,7 +111,7 @@ class Player {
     jump(): void {
         if (this.playerStatus == (Status.Normal)) {
             //this.pysikForce.y += -10;
-            this.pysikForce.y += -6.0;
+            this.pysikForce.y += -4.5;
             if (playerControlButtons.left.pressed) {
                 this.playerStatus = Status.JumpingLeft;
             } else {
@@ -174,13 +153,13 @@ class Player {
             this.aktuelUrl = this.idleUrlBase;
             left = false;
         }
-        if(this.playerStatus == Status.Dead) {
+        if (this.playerStatus == Status.Dead) {
             if ((++this.frameDivider) % 10 == 0) {
-                if(this.aktuelImg != this.aktuelImgCount -1) {
+                if (this.aktuelImg != this.aktuelImgCount - 1) {
                     this.aktuelImg = (this.aktuelImg + 1) % this.aktuelImgCount
                 }
             }
-        }else {
+        } else {
             if ((++this.frameDivider) % 3 == 0) {
                 this.aktuelImg = (this.aktuelImg + 1) % this.aktuelImgCount
             }
@@ -192,10 +171,10 @@ class Player {
             this.sheet.src = this.aktuelUrl + this.aktuelImg.toString() + ".png"
         }
 
-        if(this.playerStatus == Status.Dead) {
+        if (this.playerStatus == Status.Dead) {
             context!.drawImage(this.sheet,
                 0, 0, 601, 502,
-                this.position.x, this.position.y, 75, 75);
+                this.position.x, this.position.y, 80, 75);
         } else {
             context!.drawImage(this.sheet,
                 0, 0, 416, 454,
@@ -221,25 +200,6 @@ let playerControlButtons = {
     }
 }
 
-
-function collsion(player: Player, plattform: Plattform): boolean {
-    let standOnPlattform: boolean = plattform.standOnTop(player);
-    //console.log(standOnPlattform)
-    if (standOnPlattform) {
-        player.playerStatus = Status.Normal;
-        player.pysikForce.y = 0;
-        return true;
-    } else if (player.position.y + player.height <= canvas.height) {
-
-        player.pysikForce.y += gravitiy;
-    } else {
-        if (player.pysikForce.y > 0) {
-            player.playerStatus = Status.Normal;
-            player.pysikForce.y = 0;
-        }
-    }
-    return false;
-}
 
 //steuerung einmal taste wird gedrückt
 addEventListener('keydown', (event: KeyboardEvent) => {
@@ -292,7 +252,10 @@ function playerMovementControl(): void {
     if (!gameOverStatus) {
         if (playerControlButtons.left.pressed) {
             if (player.position.x - xSpeed < leftBarrier) {
-                controllBackground(-xSpeed);
+                if (background.deltaX != 0) {
+                    background.deltaX -= 0.5;
+                    controllBackground(-xSpeed);
+                }
                 player.moveHorizontal(0);
 
             } else {
@@ -302,6 +265,7 @@ function playerMovementControl(): void {
             if (player.position.x + player.width + xSpeed > rightBarrier) {
                 controllBackground(xSpeed);
                 player.moveHorizontal(0);
+                background.deltaX += 0.5;
             } else {
                 player.moveHorizontal(xSpeed);
             }
@@ -322,7 +286,7 @@ function playerMovementControl(): void {
 
 function checkIfDead(): boolean {
     if (player.position.y + player.height >= canvas.height) {
-        player.playerStatus=Status.Dead
+        player.playerStatus = Status.Dead
         gameOver()
 
         return true;
@@ -361,7 +325,10 @@ class Plattform {
     };
     width: number;
     height: number;
-    constructor(xPosition: number, yPosition: number, width: number, height: number) {
+    sheet: HTMLImageElement = new Image();
+    spriteWith: number = 0;
+    spriteHeight: number = 0;
+    constructor(xPosition: number, yPosition: number, width: number, height: number, spriteUrl: string, spriteWith: number, spriteHeight: number) {
         this.firmness = "open";
         this.position = {
             x: xPosition,
@@ -369,11 +336,21 @@ class Plattform {
         }
         this.width = width
         this.height = height
+        this.spriteWith = spriteWith
+        this.spriteHeight = spriteHeight
+        this.sheet.src = spriteUrl
     }
 
     private draw(): void {
-        context!.fillStyle = 'blue'
-        context!.fillRect(this.position.x, this.position.y, this.width, this.height)
+        let count: number = this.width / this.spriteWith;
+        for (let i = 0; i < count; i++) {
+            context!.drawImage(this.sheet,
+                0, 0, this.spriteWith, this.spriteHeight,
+                this.position.x + i * this.spriteWith, this.position.y - 10, this.spriteWith, this.height);
+        }
+
+        // context!.fillStyle = 'red'
+        // context!.fillRect(this.position.x, this.position.y, this.width, this.height)
     }
 
     update(): void {
@@ -381,57 +358,101 @@ class Plattform {
     }
 
     standOnTop(player: Player): boolean {
-        if (player.position.x + player.width >= this.position.x &&
-            player.position.x + 1 <= this.position.x + this.width) {
-            if (player.position.y + player.height + Math.min(player.pysikForce.y, gravitiy) <= this.position.y) {
+        //-20 wegen dem Spielermodel damit es realistischer wirkt
+        if (player.position.x + player.width >= this.position.x + 20 &&
+            player.position.x + 1 <= this.position.x + this.width - 20) {
+            //if (player.position.y + player.height + Math.min(player.pysikForce.y, gravitiy) <= this.position.y) {
+            if (player.position.y + player.height <= this.position.y) {
                 if (player.position.y + player.height + Math.max(player.pysikForce.y, gravitiy) >= this.position.y - gravitiy) {
                     if (player.pysikForce.y >= 0) {
                         return true;
                     }
-                } else {
                 }
-            } else {
             }
         }
         return false;
     }
 }
 
+function loadBackground(): void {
 
-const testPlattform: Plattform = new Plattform(leftBarrier - 50, 350, 300, 20)
-const bodenPlatte: Plattform = new Plattform(0, 400, 1200, 20)
+    context!.drawImage(background.picture, background.deltaX, 0, 1600 , 663,
+        0, 0, innerWidth, innerHeight);
+}
+
+
+const testPlattform: Plattform = new Plattform(leftBarrier - 50, innerHeight - 350, 800, 100, "./img/grass100x100.png", 100, 100)
+const bodenPlatte: Plattform = new Plattform(0, innerHeight - 150, 1000, 100, "./img/grass100x100.png", 100, 100)
+const bodenPlatte2: Plattform = new Plattform(1081, innerHeight - 150, 1000, 100, "./img/grass100x100.png", 100, 100)
 
 plattforms.push(testPlattform);
 plattforms.push(bodenPlatte);
+plattforms.push(bodenPlatte2);
 
 
-function pauseGame() {
+function checkAllCollision(): boolean {
+    let standOnPlattform: boolean = false;
+    let collisionPlattformHeight: number = player.position.y;
 
+    for (let element of plattforms) {
+        if (element.standOnTop(player)) {
+            //Falls durch die gravitation nicht direkt position auf der Plattform erreicht wird
+            collisionPlattformHeight = element.position.y
+            standOnPlattform = true;
+            break;
+        }
+    }
+
+    if (standOnPlattform) {
+        player.playerStatus = Status.Normal;
+        player.pysikForce.y = 0;
+        player.position.y = collisionPlattformHeight - player.height;
+    } else if (player.position.y + player.height < canvas.height) {
+        player.pysikForce.y += gravitiy;
+
+    } else {
+        if (player.pysikForce.y > 0) {
+            player.playerStatus = Status.Dead;
+            player.pysikForce.y = 0;
+        }
+    }
+
+    // console.log(standOnPlattform)
+    return standOnPlattform;
+}
+
+function updateAllPlattforms(): void {
+    plattforms.forEach(element => {
+        element.update();
+    });
 }
 
 function animate(): void {
+
     playerMovementControl();
     gameOverStatus = checkIfDead();
-    if (!gameOverStatus) {
-        collsion(player, testPlattform)
-    } else {
-        if (playerControlButtons.yes.pressed) {
-            //reset();
-            player.position.x = leftBarrier + 10
-            player.position.y = 0
-            gameOverStatus = false;
-        }
-    }
+
     context!.clearRect(0, 0, innerWidth, innerHeight);
     requestAnimationFrame(animate)
-    if (collsion(player, testPlattform)) { } else if (collsion(player, bodenPlatte)) { }
+    loadBackground();
+    // testCollision();
+    checkAllCollision();
 
-
-    testPlattform.update();
-    bodenPlatte.update();
+    // testPlattform.update();
+    // bodenPlatte.update();
+    // bodenPlatte2.update();
+    updateAllPlattforms();
     player.update();
     //drawBarrier();
-    checkIfDead();
+    gameOverStatus = checkIfDead();
+    if (gameOverStatus) {
+        if (playerControlButtons.yes.pressed) {
+            player.position.y = 0
+            gameOverStatus = false;
+            player.playerStatus = Status.Normal;
+        }
+    }
+
 
 }
 setGamesize();
