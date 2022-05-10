@@ -2,19 +2,80 @@ let canvas: HTMLCanvasElement = document.getElementById("canvas-game") as HTMLCa
 //Größe setzen. Kann später verändert werden. 
 let context = canvas.getContext("2d");
 let plattforms: Plattform[] = []; //Hier sind alle Plattformen drin. 
+//die Obstacle dienen nur dem Styling. Haben keinen Effekt was Collision angeht. 
+let groundObstacle: Obstacle[] = []; //Hier sind alle Plattformen drin.
+
+class Obstacle {
+    position: {
+        x: number;
+        y: number;
+    };
+    width: number;
+    height: number;
+    sheet: HTMLImageElement = new Image();
+    spriteWith: number = 0;
+    spriteHeight: number = 0;
+    
+    imgCount: number = 0
+    aktuelImg: number = 0
+    aktuelUrl: string = ""
+    animatedSprite:boolean = true
+    frameDivider: number = 0;
+    constructor(xPosition: number, yPosition: number, width: number, height: number, spriteUrl: string, spriteWith: number, spriteHeight: number,animatedSprite?:boolean, imgCount?:number) {
+        this.position = {
+            x: xPosition,
+            y: yPosition
+        }
+        this.width = width
+        this.height = height
+        this.spriteWith = spriteWith
+        this.spriteHeight = spriteHeight
+        this.sheet.src = spriteUrl
+        this.imgCount = imgCount ?? 0
+        this.animatedSprite = animatedSprite ?? false
+        this.aktuelUrl=spriteUrl
+    }
+
+
+
+    private draw(): void {
+
+
+
+        if (!this.animatedSprite) {
+            context!.drawImage(this.sheet,
+                0, 0, this.spriteWith, this.spriteHeight,
+                this.position.x, this.position.y, this.width, this.height);
+        } else {
+            //reduziert die 60fps zu 5fps
+            if ((++this.frameDivider) % 10 == 0) {
+                this.aktuelImg = (this.aktuelImg + 1) % this.imgCount
+            }
+
+            this.sheet.src = this.aktuelUrl + this.aktuelImg.toString() + ".png"
+
+            context!.drawImage(this.sheet,
+                0, 0, this.spriteWith, this.spriteHeight,
+                this.position.x, this.position.y, this.width, this.height);
+        }
+    }
+
+    update(): void {
+        this.draw();
+    }
+}
 
 let rightBarrier: number = 4 * innerWidth / 5; //Ab diesen Punkt wird der Bachground verschoben anstatt der Spieler
 let leftBarrier: number = innerWidth / 5; // Ab diesen Punkt wird der Bachground verschoben anstatt der Spieler
 let gameOverStatus: boolean = false;
 
 //1920x663
-let background: { picture: HTMLImageElement; src: string; deltaX: number } = {
+let background: { picture: HTMLImageElement; deltaX: number } = {
     picture: new Image(),
-    src: "./img/background/forest0.jpg",
     deltaX: 0
 }
-background.picture.src = background.src
 
+background.picture.src = "./img/background/forest0.jpg"
 
 function setGamesize(): void {
     let h1Element = document.querySelector("h1")!;
@@ -25,8 +86,6 @@ function setGamesize(): void {
     canvas.height = window.innerHeight - h1Size - h1MarginTop - h1MarginBot - 10;
     canvas.width = window.innerWidth - 10;
 }
-
-
 
 window.addEventListener("resize", function () {
     setGamesize();
@@ -97,12 +156,6 @@ class Player {
         this.animatemovement();
         // this.draw();
     }
-
-    private eraseOldFrame(): void {
-        // Ohne -1 bein der Y - Position gibt es Streifen. 
-        context!.clearRect(this.position.x, this.position.y - 2, this.width, this.height + 2);
-    }
-
 
     moveHorizontal(force: number): void {
         this.pysikForce.x = force;
@@ -265,7 +318,10 @@ function playerMovementControl(): void {
             if (player.position.x + player.width + xSpeed > rightBarrier) {
                 controllBackground(xSpeed);
                 player.moveHorizontal(0);
-                background.deltaX += 0.5;
+                if (background.deltaX != 720) {
+                    background.deltaX += 0.5;
+                }
+
             } else {
                 player.moveHorizontal(xSpeed);
             }
@@ -307,6 +363,10 @@ function gameOver() {
 //left = true; Hintergrund nach links verschieben. 
 function controllBackground(force: number): void {
     plattforms.forEach(function (item) {
+        item.position.x -= force;
+    });
+
+    groundObstacle.forEach(function (item) {
         item.position.x -= force;
     });
     //HintergrundBild muss noch verschoben werden. Aber Async
@@ -377,19 +437,29 @@ class Plattform {
 
 function loadBackground(): void {
 
-    context!.drawImage(background.picture, background.deltaX, 0, 1600 , 663,
+    context!.drawImage(background.picture, background.deltaX, 0, 1200, 663,
         0, 0, innerWidth, innerHeight);
 }
 
+//plattforms.push(testPlattform);
+plattforms.push(new Plattform(0, innerHeight - 150, 1000, 100, "./img/grass100x100.png", 100, 100));
+plattforms.push(new Plattform(1080, innerHeight - 150, 1000, 100, "./img/grass100x100.png", 100, 100));
+plattforms.push(new Plattform(2080, innerHeight - 150, 1000, 100, "./img/grass100x100.png", 100, 100));
+plattforms.push(new Plattform(3450, innerHeight - 150, 1000, 100, "./img/grass100x100.png", 100, 100));
 
-const testPlattform: Plattform = new Plattform(leftBarrier - 50, innerHeight - 350, 800, 100, "./img/grass100x100.png", 100, 100)
-const bodenPlatte: Plattform = new Plattform(0, innerHeight - 150, 1000, 100, "./img/grass100x100.png", 100, 100)
-const bodenPlatte2: Plattform = new Plattform(1081, innerHeight - 150, 1000, 100, "./img/grass100x100.png", 100, 100)
+groundObstacle.push(new Obstacle(1000, innerHeight - 140, 80, 80, "./img/assets/flame/fire", 256, 256, true, 13));
+groundObstacle.push(new Obstacle(3090, innerHeight - 145, 40, 80, "./img/assets/spike.png", 139, 250));
+groundObstacle.push(new Obstacle(3130, innerHeight - 145, 40, 80, "./img/assets/spike.png", 139, 250));
+groundObstacle.push(new Obstacle(3170, innerHeight - 145, 40, 80, "./img/assets/spike.png", 139, 250));
+groundObstacle.push(new Obstacle(3210, innerHeight - 145, 40, 80, "./img/assets/spike.png", 139, 250));
+groundObstacle.push(new Obstacle(3250, innerHeight - 145, 40, 80, "./img/assets/spike.png", 139, 250));
+groundObstacle.push(new Obstacle(3290, innerHeight - 145, 40, 80, "./img/assets/spike.png", 139, 250));
+groundObstacle.push(new Obstacle(3330, innerHeight - 145, 40, 80, "./img/assets/spike.png", 139, 250));
+groundObstacle.push(new Obstacle(3370, innerHeight - 145, 40, 80, "./img/assets/spike.png", 139, 250));
+groundObstacle.push(new Obstacle(3410, innerHeight - 145, 40, 80, "./img/assets/spike.png", 139, 250));
 
-plattforms.push(testPlattform);
-plattforms.push(bodenPlatte);
-plattforms.push(bodenPlatte2);
-
+let portal:Obstacle = new Obstacle(4150, innerHeight - 445, 300, 300, "./img/assets/portal/portalleft.png", 1025, 1025)
+groundObstacle.push(portal);
 
 function checkAllCollision(): boolean {
     let standOnPlattform: boolean = false;
@@ -428,6 +498,24 @@ function updateAllPlattforms(): void {
     });
 }
 
+function updateAllObstacle(): void {
+    groundObstacle.forEach(element => {
+        element.update();
+    });
+}
+
+function updateArray(myarray: Obstacle[] | Plattform[]): void {
+    myarray.forEach((element: Obstacle | Plattform) => {
+        element.update();
+    });
+}
+
+function checkForWin(): void {
+    if(player.position.x >= portal.position.x+30) {
+        console.log("gewonnen");
+    }
+}
+
 function animate(): void {
 
     playerMovementControl();
@@ -435,16 +523,17 @@ function animate(): void {
 
     context!.clearRect(0, 0, innerWidth, innerHeight);
     requestAnimationFrame(animate)
-    loadBackground();
+    loadBackground()
     // testCollision();
-    checkAllCollision();
+    checkAllCollision()
 
-    // testPlattform.update();
-    // bodenPlatte.update();
-    // bodenPlatte2.update();
-    updateAllPlattforms();
+    //updateAllObstacle()
+    //updateAllPlattforms()
+    updateArray(plattforms)
+    updateArray(groundObstacle)
+
     player.update();
-    //drawBarrier();
+    checkForWin();
     gameOverStatus = checkIfDead();
     if (gameOverStatus) {
         if (playerControlButtons.yes.pressed) {
@@ -453,8 +542,7 @@ function animate(): void {
             player.playerStatus = Status.Normal;
         }
     }
-
-
+    
 }
 setGamesize();
 animate();
