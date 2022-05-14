@@ -1,4 +1,3 @@
-// THIS IS the Player Module!
 // Dieses Modul repäsentiert das Spieler Modell und all seinen Functionen.
 
 //Hier steht der Status was das Spieler Modell Sein kann. Wurde als Enum probiert. um zu sehen ob Enums in Typescript gehen. 
@@ -7,8 +6,7 @@ enum Status {
 }
 
 //ViewPorts. An diesen Punkt wird der Spieler nicht verschoben sondern der Hintergrund. 
-let leftViewPort:number =  4 * innerWidth
-let rightViewPort:number = innerWidth / 5
+
 
 //Hier steht die Classe Spieler
 export class Player {
@@ -16,6 +14,7 @@ export class Player {
     height: number
     width: number
     position: { x: number; y: number; }
+    startXPosition:number
     pysikForce: { x: number; y: number; }
     playerStatus: Status;
 
@@ -34,14 +33,16 @@ export class Player {
     aktuelUrl: string = ""
     aktuelImgCount: number = 0
     left:boolean = false
+   
     
     canvasContext: CanvasRenderingContext2D
 
     
-    constructor(context: CanvasRenderingContext2D ) {
+    constructor(context: CanvasRenderingContext2D, startXPosition:number ) {
         this.playerStatus = Status.Normal
+        this.startXPosition =startXPosition
         this.position = {
-            x: leftViewPort + 10,  // x Position des Spielers
+            x: startXPosition + 10,  // x Position des Spielers
             y: 249   // Y Position des Spielers
         }
         this.pysikForce = {
@@ -53,6 +54,18 @@ export class Player {
         this.canvasContext = context
     }
 
+    reset():void {
+        this.position = {
+            x: this.startXPosition + 10,  // x Position des Spielers
+            y: 249   // Y Position des Spielers
+        }
+        this.pysikForce =  { 
+            x: 0, 
+            y: 0
+        }
+        this.playerStatus = Status.Normal
+    }
+
     // wird nach jedem Zeitintervall aufgerufen. Updatet die Position etc. 
     update(): void {
         let roundString: string;
@@ -61,8 +74,7 @@ export class Player {
         this.position.y = Number(roundString);
         roundString = (this.position.x + this.pysikForce.x).toFixed(3);
         this.position.x = Number(roundString);
-        this.animatemovement();
-        // this.draw();
+        this.animateMovement();
     }
 
     moveHorizontal(force: number): void {
@@ -125,7 +137,7 @@ export class Player {
 
     // Abfrage nach dem gameStatus muss Außerhalb der Classe erfolgen.
     // Bewegungsrichtung ebenfalls 
-    private animatemovement(): void {
+    private animateMovement(): void {
         
         //Bilder Ordner sind gesetzt in den variablen 
 
