@@ -4,6 +4,7 @@ let context = canvas.getContext("2d");
 let plattforms: Plattform[] = []; //Hier sind alle Plattformen drin. 
 //die Obstacle dienen nur dem Styling. Haben keinen Effekt was Collision angeht. 
 let groundObstacle: Obstacle[] = []; //Hier sind alle Plattformen drin.
+let gameStatus: "Gewonnen" | "Game-Over" | "Pause" | "On-Going" = "On-Going"
 
 class Obstacle {
     position: {
@@ -15,13 +16,13 @@ class Obstacle {
     sheet: HTMLImageElement = new Image();
     spriteWith: number = 0;
     spriteHeight: number = 0;
-    
+
     imgCount: number = 0
     aktuelImg: number = 0
     aktuelUrl: string = ""
-    animatedSprite:boolean = true
+    animatedSprite: boolean = true
     frameDivider: number = 0;
-    constructor(xPosition: number, yPosition: number, width: number, height: number, spriteUrl: string, spriteWith: number, spriteHeight: number,animatedSprite?:boolean, imgCount?:number) {
+    constructor(xPosition: number, yPosition: number, width: number, height: number, spriteUrl: string, spriteWith: number, spriteHeight: number, animatedSprite?: boolean, imgCount?: number) {
         this.position = {
             x: xPosition,
             y: yPosition
@@ -33,15 +34,12 @@ class Obstacle {
         this.sheet.src = spriteUrl
         this.imgCount = imgCount ?? 0
         this.animatedSprite = animatedSprite ?? false
-        this.aktuelUrl=spriteUrl
+        this.aktuelUrl = spriteUrl
     }
 
 
 
     private draw(): void {
-
-
-
         if (!this.animatedSprite) {
             context!.drawImage(this.sheet,
                 0, 0, this.spriteWith, this.spriteHeight,
@@ -158,7 +156,12 @@ class Player {
     }
 
     moveHorizontal(force: number): void {
-        this.pysikForce.x = force;
+        if (gameStatus == "On-Going") {
+            this.pysikForce.x = force;
+        } else {
+            this.pysikForce.x = 0;
+        }
+
     }
 
     jump(): void {
@@ -175,12 +178,13 @@ class Player {
 
     private animatemovement(): void {
         let left = false;
-        if (playerControlButtons.left.pressed && this.playerStatus == Status.Normal) {
+
+        if (playerControlButtons.left.pressed && gameStatus == "On-Going") {
             //movement left
             this.aktuelImgCount = this.runImgCount;
             this.aktuelUrl = this.runUrlBase;
             left = true;
-        } else if (playerControlButtons.right.pressed && this.playerStatus == Status.Normal) {
+        } else if (playerControlButtons.right.pressed && gameStatus == "On-Going") {
             //movement right
             this.aktuelImgCount = this.runImgCount;
             this.aktuelUrl = this.runUrlBase;
@@ -250,6 +254,9 @@ let playerControlButtons = {
     },
     yes: {
         pressed: false
+    },
+    pause: {
+        pressed: false
     }
 }
 
@@ -271,6 +278,9 @@ addEventListener('keydown', (event: KeyboardEvent) => {
             break;
         case "y":
             playerControlButtons.yes.pressed = true;
+            break;
+        case "p":
+            playerControlButtons.pause.pressed = true;
             break;
         default:
             break;
@@ -295,6 +305,9 @@ addEventListener('keyup', (event: KeyboardEvent) => {
         case "y":
             playerControlButtons.yes.pressed = false;
             break;
+        case "p":
+            playerControlButtons.pause.pressed = false;
+            break;
         default:
             break;
     }
@@ -302,7 +315,7 @@ addEventListener('keyup', (event: KeyboardEvent) => {
 
 function playerMovementControl(): void {
     let xSpeed = 2;
-    if (!gameOverStatus) {
+    if (gameStatus == "On-Going") {
         if (playerControlButtons.left.pressed) {
             if (player.position.x - xSpeed < leftBarrier) {
                 if (background.deltaX != 0) {
@@ -343,6 +356,7 @@ function playerMovementControl(): void {
 function checkIfDead(): boolean {
     if (player.position.y + player.height >= canvas.height) {
         player.playerStatus = Status.Dead
+        gameStatus = "Game-Over";
         gameOver()
 
         return true;
@@ -357,7 +371,7 @@ function gameOver() {
     context!.fillText('Game Over!!!', 200, 50);
     context!.font = '20px serif';
     context!.fillText('Willst es noch einmal Versuchen? y/n', 200, 75);
-    gameOverStatus = true;
+    gameStatus = "Game-Over"
 }
 
 //left = true; Hintergrund nach links verschieben. 
@@ -458,7 +472,7 @@ groundObstacle.push(new Obstacle(3330, innerHeight - 145, 40, 80, "./img/assets/
 groundObstacle.push(new Obstacle(3370, innerHeight - 145, 40, 80, "./img/assets/spike.png", 139, 250));
 groundObstacle.push(new Obstacle(3410, innerHeight - 145, 40, 80, "./img/assets/spike.png", 139, 250));
 
-let portal:Obstacle = new Obstacle(4150, innerHeight - 445, 300, 300, "./img/assets/portal/portalleft.png", 1025, 1025)
+let portal: Obstacle = new Obstacle(4150, innerHeight - 445, 300, 300, "./img/assets/portal/portalleft.png", 1025, 1025)
 groundObstacle.push(portal);
 
 function checkAllCollision(): boolean {
@@ -511,38 +525,62 @@ function updateArray(myarray: Obstacle[] | Plattform[]): void {
 }
 
 function checkForWin(): void {
-    if(player.position.x >= portal.position.x+30) {
-        console.log("gewonnen");
+    if (player.position.x >= portal.position.x + 30) {
+
     }
 }
 
 function animate(): void {
 
-    playerMovementControl();
-    gameOverStatus = checkIfDead();
-
+    let deadTest:boolean=false;
     context!.clearRect(0, 0, innerWidth, innerHeight);
     requestAnimationFrame(animate)
-    loadBackground()
-    // testCollision();
-    checkAllCollision()
 
-    //updateAllObstacle()
-    //updateAllPlattforms()
+    playerMovementControl();
+
+
+    loadBackground()
     updateArray(plattforms)
     updateArray(groundObstacle)
-
-    player.update();
-    checkForWin();
-    gameOverStatus = checkIfDead();
-    if (gameOverStatus) {
-        if (playerControlButtons.yes.pressed) {
-            player.position.y = 0
-            gameOverStatus = false;
-            player.playerStatus = Status.Normal;
-        }
+    player.update()
+    checkAllCollision()
+    deadTest=checkIfDead(); 
+    if (deadTest) {
+        gameStatus = "Game-Over"        
     }
-    
+
+    switch (gameStatus) {
+        case "Game-Over":
+            if (playerControlButtons.yes.pressed) {
+                player.position.y = 0
+                gameStatus = "On-Going";
+                player.playerStatus = Status.Normal;
+            }
+            break;
+        case "Pause":
+            if (playerControlButtons.pause.pressed) {
+                gameStatus = "On-Going";
+            }
+            break;
+        case "Gewonnen":
+            if (playerControlButtons.yes.pressed) {
+                player.position.y = 0
+                gameStatus = "On-Going";
+                player.playerStatus = Status.Normal;
+            }
+            break;
+        case "On-Going":
+            break;
+
+    }
+    // if (gameOverStatus) {
+    //     if (playerControlButtons.yes.pressed) {
+    //         player.position.y = 0
+    //         gameOverStatus = false;
+    //         player.playerStatus = Status.Normal;
+    //     }
+    // }
+
 }
 setGamesize();
 animate();
