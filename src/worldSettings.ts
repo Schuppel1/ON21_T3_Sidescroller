@@ -3,8 +3,8 @@ export const gravitiy: number = .05
 
 export let gameStatus: "Gewonnen" | "Game-Over" | "Pause" | "On-Going" | "Intro" = "Intro"
 export let endOfMap: number = 0
-export let rightViewBarrier = 4 * innerWidth / 5
-export let leftViewBarrier = innerWidth / 5
+export let rightViewBarrier:number = 4 * innerWidth / 5
+export let leftViewBarrier:number = innerWidth / 5
 
 export let background: { picture: HTMLImageElement, deltaX: number } = {
     picture: new Image(),

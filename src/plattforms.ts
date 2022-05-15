@@ -77,12 +77,13 @@ export function updateAllPlattforms(plattforms:Plattform[]): void {
     })
 }
 
+//Dimension 500px Breite 100px Höhe 
 export class GrassPlattform extends Plattform {
     constructor (positionX:number, positionY:number, context: CanvasRenderingContext2D) {
         super(context, positionX, positionY, 500, 100, "./img/plattform/grass100x100.png", 100, 100)
     }
 }
-
+//Dimension 100px Breite 100px Höhe 
 export class IcePlattform extends Plattform {
     constructor (positionX:number, positionY:number, context: CanvasRenderingContext2D) {
         super(context, positionX, positionY, 100, 100, "./img/plattform/icePlattform100x100.png", 100, 100)
