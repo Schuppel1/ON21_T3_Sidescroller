@@ -1,7 +1,6 @@
 // Dieses Modul repäsentiert das Spieler Modell und all seinen Functionen.
-
-import { playerControlButtons } from "./playerControl";
-import { gameStatus } from "./worldSettings";
+import { inputControlButtons } from "./inputControl"
+import { gameStatus } from "./worldSettings"
 
 //Hier steht der Status was das Spieler Modell Sein kann. Wurde als Enum probiert. um zu sehen ob Enums in Typescript gehen. 
 export enum Status {
@@ -16,14 +15,14 @@ export class Player {
 
     height: number
     width: number
-    position: { x: number; y: number; }
+    position: { x: number, y: number }
     startXPosition:number
-    pysikForce: { x: number; y: number; }
-    playerStatus: Status;
+    pysikForce: { x: number, y: number }
+    playerStatus: Status
 
-    frameDivider = 3; //animate ist bei 60fps durch 3 geteilt sind 20fps.  
+    frameDivider = 3 //animate ist bei 60fps durch 3 geteilt sind 20fps.  
 
-    sheet: HTMLImageElement = new Image();
+    sheet: HTMLImageElement = new Image()
     runUrlBase: string = "./img/player/CuteGirlFiles/run/Run"
     runImgCount: number = 20
     idleUrlBase: string = "./img/player/CuteGirlFiles/idle/Idle"
@@ -71,31 +70,30 @@ export class Player {
 
     // wird nach jedem Zeitintervall aufgerufen. Updatet die Position etc. 
     update(): void {
-        let roundString: string;
-        roundString = (this.position.y + this.pysikForce.y).toFixed(3);
-        this.position.y = Number(roundString);
-        roundString = (this.position.x + this.pysikForce.x).toFixed(3);
-        this.position.x = Number(roundString);
-        this.animaton();
+        let roundString: string
+        roundString = (this.position.y + this.pysikForce.y).toFixed(3)
+        this.position.y = Number(roundString)
+        roundString = (this.position.x + this.pysikForce.x).toFixed(3)
+        this.position.x = Number(roundString)
+        this.animaton()
     }
 
     moveHorizontal(force: number): void {
         if (gameStatus == "On-Going") {
-             this.pysikForce.x = force;
+             this.pysikForce.x = force
         } else {
-             this.pysikForce.x = 0;
+             this.pysikForce.x = 0
         }
         //this.pysikForce.x = force
     }
 
     jump(): void {
         if (this.playerStatus == (Status.Normal)) {
-            //this.pysikForce.y += -10;
-            this.pysikForce.y += -5;
-            if (playerControlButtons.left.pressed) {
-                this.playerStatus = Status.JumpingLeft;
+            this.pysikForce.y += -5
+            if (inputControlButtons.left.pressed) {
+                this.playerStatus = Status.JumpingLeft
             } else {
-                this.playerStatus = Status.JumpingRight;
+                this.playerStatus = Status.JumpingRight
             }
         }
     }
@@ -103,36 +101,36 @@ export class Player {
     // Muss in der PlayerControl gesetzt werden
     public setAnimationImages():void {
         //playerControlButtons.left.pressed && this.playerStatus == Status.Normal
-        if(playerControlButtons.left.pressed && this.playerStatus == Status.Normal) {
+        if(inputControlButtons.left.pressed && this.playerStatus == Status.Normal) {
             //movement left
-            this.aktuelImgCount = this.runImgCount;
-            this.aktuelUrl = this.runUrlBase;
-            this.left = true;
-        } else if (playerControlButtons.right.pressed && this.playerStatus == Status.Normal) {
+            this.aktuelImgCount = this.runImgCount
+            this.aktuelUrl = this.runUrlBase
+            this.left = true
+        } else if (inputControlButtons.right.pressed && this.playerStatus == Status.Normal) {
             //movement right
-            this.aktuelImgCount = this.runImgCount;
-            this.aktuelUrl = this.runUrlBase;
-            this.left = false;
+            this.aktuelImgCount = this.runImgCount
+            this.aktuelUrl = this.runUrlBase
+            this.left = false
         } else if (this.playerStatus == Status.JumpingLeft) {
             //jump to the Left
-            this.aktuelImgCount = this.jumpImgCount;
-            this.aktuelUrl = this.jumpUrlBase;
-            this.left = true;
+            this.aktuelImgCount = this.jumpImgCount
+            this.aktuelUrl = this.jumpUrlBase
+            this.left = true
         } else if (this.playerStatus == Status.JumpingRight) {
             //jump to the right
-            this.aktuelImgCount = this.jumpImgCount;
-            this.aktuelUrl = this.jumpUrlBase;
-            this.left = false;
+            this.aktuelImgCount = this.jumpImgCount
+            this.aktuelUrl = this.jumpUrlBase
+            this.left = false
         } else if (this.playerStatus == Status.Dead) {
             //sterbe Animation
-            this.aktuelImgCount = this.deadImgCount;
-            this.aktuelUrl = this.deadUrlBase;
-            this.left = false;
+            this.aktuelImgCount = this.deadImgCount
+            this.aktuelUrl = this.deadUrlBase
+            this.left = false
         } else {
             //Idle
-            this.aktuelImgCount = this.idleImgCount;
-            this.aktuelUrl = this.idleUrlBase;
-            this.left = false;
+            this.aktuelImgCount = this.idleImgCount
+            this.aktuelUrl = this.idleUrlBase
+            this.left = false
         }
 
     }
@@ -165,11 +163,11 @@ export class Player {
         if (this.playerStatus == Status.Dead) {
             this.canvasContext!.drawImage(this.sheet,
                 0, 0, 601, 502,
-                this.position.x, this.position.y, 80, 75);
+                this.position.x, this.position.y, 80, 75)
         } else {
             this.canvasContext!.drawImage(this.sheet,
                 0, 0, 416, 454,
-                this.position.x, this.position.y, 75, 75);
+                this.position.x, this.position.y, 75, 75)
         }
     }
 }

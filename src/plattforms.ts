@@ -6,15 +6,15 @@ export class Plattform {
     position: {
         x: number
         y: number
-    };
+    }
     width: number
     height: number
     sheet: HTMLImageElement = new Image()
     spriteWith: number = 0
     spriteHeight: number = 0
     canvasContext: CanvasRenderingContext2D
-    startpositionX: number;
-    startpositionY: number;
+    startpositionX: number
+    startpositionY: number
 
 
     constructor(context: CanvasRenderingContext2D, xPosition: number, yPosition: number, width: number, height: number, spriteUrl: string, spriteWith: number, spriteHeight: number) {
@@ -33,11 +33,11 @@ export class Plattform {
     }
 
     private draw(): void {
-        let count: number = this.width / this.spriteWith;
+        let count: number = this.width / this.spriteWith
         for (let i = 0; i < count; i++) {
             this.canvasContext.drawImage(this.sheet,
                 0, 0, this.spriteWith, this.spriteHeight,
-                this.position.x + i * this.spriteWith, this.position.y - 10, this.spriteWith, this.height);
+                this.position.x + i * this.spriteWith, this.position.y - 10, this.spriteWith, this.height)
         }
 
         // context!.fillStyle = 'red'
@@ -45,7 +45,7 @@ export class Plattform {
     }
 
     update(): void {
-        this.draw();
+        this.draw()
     }
 
     reset(): void {
@@ -63,12 +63,12 @@ export class Plattform {
             if (player.position.y + player.height <= this.position.y) {
                 if (player.position.y + player.height + Math.max(player.pysikForce.y, gravitiy) >= this.position.y - gravitiy) {
                     if (player.pysikForce.y >= 0) {
-                        return true;
+                        return true
                     }
                 }
             }
         }
-        return false;
+        return false
     }
 }
 
@@ -76,8 +76,8 @@ export class Plattform {
 
 export function updateAllPlattforms(plattforms:Plattform[]): void {
     plattforms.forEach(element => {
-        element.update();
-    });
+        element.update()
+    })
 }
 
 export class GrassPlattform extends Plattform {

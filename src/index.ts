@@ -1,80 +1,80 @@
-import { Player } from "./player";
-import { Obstacle, updateAllObstacle } from "./obstacle";
-import { Plattform, updateAllPlattforms } from "./plattforms";
-import { gameStatus, leftBarrier, loadBackground, setGamesize, setGameStatus, setLeftBarrier, setRightBarrier } from "./worldSettings";
-import { playerControlButtons, playerMovementControl } from "./playerControl";
-import { checkAllCollision, checkForWin, checkIfDead, gameOverText, gewonnenTextGame, pauseText, reset } from "./utilities";
-import { loadExampleMap, portal } from "./maps";
+import { Player } from "./player"
+import { Obstacle, updateAllObstacle } from "./obstacle"
+import { Plattform, updateAllPlattforms } from "./plattforms"
+import { gameStatus, leftBarrier, loadBackground, setGamesize, setGameStatus, setLeftBarrier, setRightBarrier } from "./worldSettings"
+import { playerMovementControl } from "./playerControl"
+import { checkAllCollision, checkForWin, checkIfDead, gameOverText, gewonnenTextGame, pauseText, reset } from "./utilities"
+import { introText, loadExampleMap, portal } from "./maps"
+import { inputControlButtons } from "./inputControl"
 
 let canvas: HTMLCanvasElement = document.getElementById("canvas-game") as HTMLCanvasElement
 //Größe setzen. Kann später verändert werden. 
-let context = canvas.getContext("2d");
-export let plattforms: Plattform[] = []; //Hier sind alle Plattformen drin. 
+let context = canvas.getContext("2d")
+export let plattforms: Plattform[] = [] //Hier sind alle Plattformen drin. 
 //die Obstacle dienen nur dem Styling. Haben keinen Effekt was Collision angeht. 
-export let groundObstacle: Obstacle[] = []; //Hier sind alle Plattformen drin.
-
-window.addEventListener("resize", function () {
-    setGamesize(canvas)
-    setRightBarrier(4 * innerWidth / 5)
-    setLeftBarrier(innerWidth / 5)
-});
-
+export let groundObstacle: Obstacle[] = [] //Hier sind alle Plattformen drin.
+//Spieler wird erstellt
 const player: Player = new Player(context!, leftBarrier + 20)
 
-loadExampleMap(context!)
+loadExampleMap(context!,plattforms, groundObstacle )
 
+//Animationsfunktion
 function animate(): void {
 
     requestAnimationFrame(animate)
 
-    if (playerControlButtons.pause.pressed) {
+    if (inputControlButtons.pause.pressed) {
         setGameStatus("Pause")
     }
 
     switch (gameStatus) {
+        case "Intro":
+            context!.clearRect(0, 0, innerWidth, innerHeight)
+            loadBackground(context!)
+            introText(context!)
+            break
         case "Game-Over":
             loadBackground(context!)
             updateAllPlattforms(plattforms)
             updateAllObstacle(groundObstacle)
             player.update()
             gameOverText(context!)
-            if (playerControlButtons.yes.pressed) {
+            if (inputControlButtons.yes.pressed) {
                 reset(player, plattforms, groundObstacle)
             }
-            break;
+            break
         case "Pause":
             pauseText(context!)
-            if (playerControlButtons.yes.pressed) {
+            if (inputControlButtons.yes.pressed) {
                 setGameStatus("On-Going")
             }
-            break;
+            break
         case "Gewonnen":
             gewonnenTextGame(context!)
-            if (playerControlButtons.yes.pressed) {
+            if (inputControlButtons.yes.pressed) {
                 reset(player, plattforms, groundObstacle)
             }
-            break;
+            break
         case "On-Going":
-            context!.clearRect(0, 0, innerWidth, innerHeight);
+            context!.clearRect(0, 0, innerWidth, innerHeight)
             //Hintergrund muss immer zuerst geladen werden. 
             loadBackground(context!)
-
-
             updateAllPlattforms(plattforms)
             updateAllObstacle(groundObstacle)
             player.update()
-            playerMovementControl(player)
+            playerMovementControl(player,plattforms,groundObstacle)
             checkAllCollision(player, plattforms, canvas)
-            let deadTest = checkIfDead(player, canvas);
-            if (deadTest) {
+
+            if (checkIfDead(player, canvas)) {
                 setGameStatus("Game-Over")
             }
             if(checkForWin(player,portal)) {
                 setGameStatus("Gewonnen")
             }
-            break;
+            break
 
     }
 }
-setGamesize(canvas);
-animate();
+
+setGamesize(canvas)
+animate()
