@@ -1,5 +1,5 @@
 // Dieses Modul Repäsentiert Obstacle. Also Gefahren/Hinternisse. 
-export class Obstacle {
+export abstract class Obstacle {
     position: {
         x: number
         y: number

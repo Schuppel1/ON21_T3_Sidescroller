@@ -38,6 +38,7 @@ export function loadExampleMap(context: CanvasRenderingContext2D, plattforms: Pl
     plattforms.push(new IcePlattform(600, innerHeight - 350, context!))
     setBackground("./img/background/forest0.jpg")
     setEndOfMap(4450)
+
 }
 
 // 60 frames = 1s 

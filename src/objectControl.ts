@@ -8,7 +8,7 @@ import { background, endOfMap, gameStatus, leftViewBarrier, rightViewBarrier } f
 // Dieses Modul repäsentiert die Spielersteuerung und all seinen Functionen.
 
 
-export function playerMovementControl(player: Player, plattforms: Plattform[], obstacles: Obstacle[]): void {
+export function movementControl(player: Player, plattforms: Plattform[], obstacles: Obstacle[]): void {
     let xSpeed = 2
     if (gameStatus == "On-Going") {
         if (inputControlButtons.left.pressed) {

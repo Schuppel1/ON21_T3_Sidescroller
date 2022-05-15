@@ -1,8 +1,8 @@
 import { Player } from "./player"
 import { gravitiy } from "./worldSettings"
 
-//Dieses Model stellt die Plattformen da. 
-export class Plattform {
+//Dieses Modul stellt die Plattformen da. 
+export abstract class Plattform {
     position: {
         x: number
         y: number
@@ -39,9 +39,6 @@ export class Plattform {
                 0, 0, this.spriteWith, this.spriteHeight,
                 this.position.x + i * this.spriteWith, this.position.y - 10, this.spriteWith, this.height)
         }
-
-        // context!.fillStyle = 'red'
-        // context!.fillRect(this.position.x, this.position.y, this.width, this.height)
     }
 
     update(): void {

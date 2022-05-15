@@ -2,7 +2,7 @@ import { Player } from "./player"
 import { Obstacle, updateAllObstacle } from "./obstacle"
 import { Plattform, updateAllPlattforms } from "./plattforms"
 import { gameStatus, leftViewBarrier, loadBackground, setGamesize, setGameStatus, setLeftBarrier, setRightBarrier } from "./worldSettings"
-import { playerMovementControl } from "./playerControl"
+import { movementControl } from "./objectControl"
 import { checkAllCollision, checkForWin, checkIfDead, gameOverText, gewonnenTextGame, pauseText, reset } from "./utilities"
 import { introText, loadExampleMap, portal } from "./maps"
 import { inputControlButtons } from "./inputControl"
@@ -64,7 +64,7 @@ function animate(): void {
             updateAllPlattforms(plattforms)
             updateAllObstacle(groundObstacle)
             player.update()
-            playerMovementControl(player,plattforms,groundObstacle)
+            movementControl(player,plattforms,groundObstacle)
             checkAllCollision(player, plattforms, canvas)
 
             if (checkIfDead(player, canvas)) {

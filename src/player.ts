@@ -98,8 +98,8 @@ export class Player {
         }
     }
 
-    // Muss in der PlayerControl gesetzt werden
-    public setAnimationImages():void {
+    
+    private setAnimationImages():void {
         //playerControlButtons.left.pressed && this.playerStatus == Status.Normal
         if(inputControlButtons.left.pressed && this.playerStatus == Status.Normal) {
             //movement left
