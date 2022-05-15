@@ -68,3 +68,21 @@ export function updateAllObstacle(obstacles:Obstacle[]): void {
         element.update();
     });
 }
+
+export class Flame extends Obstacle {
+    constructor (positionX:number, positionY:number, context: CanvasRenderingContext2D) {
+        super(context, positionX, positionY, 100, 100, "./img/assets/flame/fire", 256, 256, true, 13)
+    }
+}
+
+export class Spike extends Obstacle {
+    constructor (positionX:number, positionY:number, context: CanvasRenderingContext2D) {
+        super(context, positionX, positionY, 50, 100, "./img/assets/spike.png", 139, 250)
+    }
+}
+
+export class Portal extends Obstacle {
+    constructor (positionX:number, positionY:number, context: CanvasRenderingContext2D) {
+        super(context, positionX, positionY, 300, 300, "./img/assets/portal/portalleft.png", 1025, 1025)
+    }
+}

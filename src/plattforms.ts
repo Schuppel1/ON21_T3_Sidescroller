@@ -61,8 +61,21 @@ export class Plattform {
 }
 
 
+
 export function updateAllPlattforms(plattforms:Plattform[]): void {
     plattforms.forEach(element => {
         element.update();
     });
+}
+
+export class GrassPlattform extends Plattform {
+    constructor (positionX:number, positionY:number, context: CanvasRenderingContext2D) {
+        super(context, positionX, positionY, 500, 100, "./img/plattform/grass100x100.png", 100, 100)
+    }
+}
+
+export class IcePlattform extends Plattform {
+    constructor (positionX:number, positionY:number, context: CanvasRenderingContext2D) {
+        super(context, positionX, positionY, 100, 100, "./img/plattform/icePlattform100x100.png", 100, 100)
+    }
 }

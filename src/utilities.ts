@@ -1,4 +1,5 @@
 import { groundObstacle, plattforms } from "./index";
+import { Obstacle } from "./obstacle";
 import { Plattform } from "./plattforms";
 import { Player, Status } from "./player";
 import { gravitiy, setGameStatus } from "./worldSettings";
@@ -63,4 +64,10 @@ export function checkAllCollision(player:Player,plattforms:Plattform[], canvas: 
     }
     
     return standOnPlattform;
+}
+
+function checkForWin(player:Player, portal:Obstacle): void {
+    if (player.position.x >= portal.position.x + 30) {
+
+    }
 }
