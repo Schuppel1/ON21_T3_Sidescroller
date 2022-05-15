@@ -55,7 +55,7 @@ let lineNumber: number =  0
 let introTextArray: string[] =[]
 introTextArray.push("Im Rahmen der Abgabe habe ich mir ein Rahmenkonzeot überlegt für einen Sidescroller")
 introTextArray.push('Die Spielfigur könnt ihr mit "a" nach links und mit "d" nach rechts bewegen.')
-introTextArray.push('Mit dem Leertaste kann man springen')
+introTextArray.push('Zum springen die Leertaste benutzen.')
 introTextArray.push('Eine Pause Funktion ist ebenfalls vorhanden.')
 introTextArray.push('Dazu einfach die "p" taste drücken.')
 introTextArray.push('Es sind noch keine Gegner vorhanden.')
@@ -73,6 +73,7 @@ export function introText(context: CanvasRenderingContext2D) {
         } else {
             setGameStatus("On-Going")
         }
+        actualFrame=1
     }
     for (let i = 0; i<= lineNumber; i++) {
         writeTitle("Willkommen bei meinem Game Konzept",context,100)
