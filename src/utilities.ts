@@ -1,7 +1,7 @@
 import { Obstacle } from "./obstacle"
 import { Plattform } from "./plattforms"
 import { Player, Status } from "./player"
-import { gravitiy, resetWorld} from "./worldSettings"
+import { endOfMap, gravitiy, resetWorld, setEndOfMap} from "./worldSettings"
 
 
 //left = true Hintergrund nach links verschieben. 
@@ -13,6 +13,8 @@ export function moveObjects(force: number, plattforms:Plattform[],groundObstacle
     groundObstacle.forEach(function (item) {
         item.position.x -= force
     })
+
+    setEndOfMap(endOfMap - force)
     //HintergrundBild muss noch verschoben werden. Aber Async
 }
 

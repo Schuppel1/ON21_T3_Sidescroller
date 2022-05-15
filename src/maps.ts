@@ -37,7 +37,7 @@ export function loadExampleMap(context: CanvasRenderingContext2D, plattforms: Pl
     plattforms.push(new IcePlattform(500, innerHeight - 350, context!))
     plattforms.push(new IcePlattform(600, innerHeight - 350, context!))
     setBackground("./img/background/forest0.jpg")
-    setEndOfMap(4500)
+    setEndOfMap(4450)
 }
 
 // 60 frames = 1s 
@@ -51,7 +51,7 @@ introTextArray.push('Mit dem Leertaste kann man springen')
 introTextArray.push('Eine Pause Funktion ist ebenfalls vorhanden.')
 introTextArray.push('Dazu einfach die "p" taste drücken.')
 introTextArray.push('Es sind noch keine Gegner vorhanden.')
-introTextArray.push('Ebenso ist das Ziel noch nicht betrettbar')
+introTextArray.push('Ebenso ist das Ziel noch nicht betrettbar!')
 introTextArray.push('Viel Spaß beim spielen!')
 
 export function introText(context: CanvasRenderingContext2D) {

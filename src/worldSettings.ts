@@ -1,8 +1,8 @@
 //Map Constante Gravitation. (Die Fallgeschwindigkeit/pysikForce.y nimmt beim fallen zu.)
 export const gravitiy: number = .05
 
-export let gameStatus: "Gewonnen" | "Game-Over" | "Pause" | "On-Going" | "Intro" = "Intro"
-export let endOfMap: Number= 4500
+export let gameStatus: "Gewonnen" | "Game-Over" | "Pause" | "On-Going" | "Intro" = "On-Going"
+export let endOfMap: number= 2000
 export let rightBarrier = 4 * innerWidth / 5
 export let leftBarrier = innerWidth / 5
 
