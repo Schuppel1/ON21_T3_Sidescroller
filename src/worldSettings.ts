@@ -1,8 +1,8 @@
 //Map Constante Gravitation. (Die Fallgeschwindigkeit/pysikForce.y nimmt beim fallen zu.)
 export const gravitiy: number = .05;
 
-let gameStatus: "Gewonnen" | "Game-Over" | "Pause" | "On-Going" | "Dialog" = "On-Going"
-
+export let gameStatus: "Gewonnen" | "Game-Over" | "Pause" | "On-Going" | "Dialog" = "On-Going"
+export let endOfMap: Number= 4500
 export let rightBarrier = 4 * innerWidth / 5;
 export let leftBarrier = innerWidth / 5
 
@@ -11,11 +11,19 @@ export let background: { picture: HTMLImageElement; deltaX: number } = {
     picture: new Image(),
     deltaX: 0,
 }
-background.picture.src = "./img/background/forest0.jpg"
 
-export function getGameStatus(): "Gewonnen" | "Game-Over" | "Pause" | "On-Going" | "Dialog" {
-    return gameStatus;
+export function resetWorld() {
+    background.deltaX = 0; 
+    gameStatus = "On-Going"
 }
+
+export function setEndOfMap(xPosition:number) {
+    endOfMap = xPosition; 
+}
+
+export function setBackground(url:string) {
+    background.picture.src = url
+} 
 
 export function setGameStatus(gameStatusGlobal:"Gewonnen" | "Game-Over" | "Pause" | "On-Going" | "Dialog") {
     gameStatus = gameStatusGlobal;

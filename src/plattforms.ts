@@ -13,12 +13,17 @@ export class Plattform {
     spriteWith: number = 0
     spriteHeight: number = 0
     canvasContext: CanvasRenderingContext2D
+    startpositionX: number;
+    startpositionY: number;
+
 
     constructor(context: CanvasRenderingContext2D, xPosition: number, yPosition: number, width: number, height: number, spriteUrl: string, spriteWith: number, spriteHeight: number) {
         this.position = {
             x: xPosition,
             y: yPosition
         }
+        this.startpositionX = xPosition
+        this.startpositionY = yPosition
         this.width = width
         this.height = height
         this.spriteWith = spriteWith
@@ -41,6 +46,13 @@ export class Plattform {
 
     update(): void {
         this.draw();
+    }
+
+    reset(): void {
+        this.position = {
+            x: this.startpositionX ,
+            y: this.startpositionY 
+        }
     }
 
     standOnTop(player: Player): boolean {

@@ -2,7 +2,7 @@ import { groundObstacle, plattforms } from "./index";
 import { Obstacle } from "./obstacle";
 import { Plattform } from "./plattforms";
 import { Player, Status } from "./player";
-import { gravitiy, setGameStatus } from "./worldSettings";
+import { gravitiy, resetWorld, setGameStatus } from "./worldSettings";
 
 
 //left = true; Hintergrund nach links verschieben. 
@@ -26,14 +26,7 @@ export function checkIfDead(player:Player, canvas: HTMLCanvasElement): boolean {
     }
 }
 
-export function gameOver(context: CanvasRenderingContext2D) {
-    context!.fillStyle = "white";
-    context!.font = '48px serif';
-    context!.fillText('Game Over!!!', 200, 50);
-    context!.font = '20px serif';
-    context!.fillText('Willst es noch einmal Versuchen? y/n', 200, 75);
-    setGameStatus("Game-Over");
-}
+
 
 export function checkAllCollision(player:Player,plattforms:Plattform[], canvas: HTMLCanvasElement): boolean {
     let standOnPlattform: boolean = false;
@@ -66,8 +59,58 @@ export function checkAllCollision(player:Player,plattforms:Plattform[], canvas: 
     return standOnPlattform;
 }
 
-function checkForWin(player:Player, portal:Obstacle): void {
+export function checkForWin(player:Player, portal:Obstacle): boolean {
     if (player.position.x >= portal.position.x + 30) {
+        return true
+    } else 
+    return false
+}
 
+export function reset (player:Player,plattforms: Plattform[], obstacles: Obstacle[]  ) {
+
+    player.reset()
+
+    for (let element of plattforms) {
+        element.reset();
     }
+
+    for (let element of obstacles) {
+        element.reset()
+    }
+
+    resetWorld()
+
+}
+
+export function gameOverText(context: CanvasRenderingContext2D) {
+    context!.fillStyle = "WhiteSmoke"
+    context!.strokeStyle = "black"
+    context!.font = '58px serif'
+    context!.fillText('Game Over!!!', 200, 50)
+    context!.strokeText('Game Over!!!', 200, 50)
+    context!.font = '40px serif'
+    context!.fillText('Willst es noch einmal Versuchen? y/n', 200, 100)
+    context!.strokeText('Willst es noch einmal Versuchen? y/n', 200, 100)
+}
+
+export function pauseText(context: CanvasRenderingContext2D) {
+    context!.fillStyle = "WhiteSmoke"
+    context!.strokeStyle = "black"
+    context!.font = '58px serif'
+    context!.fillText('Spiel ist pausiert!', 200, 50)
+    context!.strokeText('Spiel ist pausiert!', 200, 50)
+    context!.font = '40px serif'
+    context!.fillText('Willst du weiterspielen? Dann drucke "y"', 200, 100)
+    context!.strokeText('Willst du weiterspielen? Dann drucke "y"', 200, 100)
+}
+
+export function gewonnenTextGame(context: CanvasRenderingContext2D) {
+    context!.fillStyle = "WhiteSmoke";
+    context!.strokeStyle = "black";
+    context!.font = '58px serif';
+    context!.fillText('Das Portal scheint noch nicht fertig zu sein!', 200, 50);
+    context!.strokeText('Das Portal scheint noch nicht fertig zu sein!', 200, 50);
+    context!.font = '40px serif';
+    context!.fillText('Ende der Demo. Willst du es nochmal spielen? "y"', 200, 100);
+    context!.strokeText('Ende der Demo. Willst du es nochmal spielen? "y"', 200, 100);
 }

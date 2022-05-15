@@ -1,7 +1,7 @@
 // Dieses Modul repäsentiert das Spieler Modell und all seinen Functionen.
 
 import { playerControlButtons } from "./playerControl";
-import { getGameStatus } from "./worldSettings";
+import { gameStatus } from "./worldSettings";
 
 //Hier steht der Status was das Spieler Modell Sein kann. Wurde als Enum probiert. um zu sehen ob Enums in Typescript gehen. 
 export enum Status {
@@ -80,7 +80,7 @@ export class Player {
     }
 
     moveHorizontal(force: number): void {
-        if (getGameStatus() == "On-Going") {
+        if (gameStatus == "On-Going") {
              this.pysikForce.x = force;
         } else {
              this.pysikForce.x = 0;
@@ -91,7 +91,7 @@ export class Player {
     jump(): void {
         if (this.playerStatus == (Status.Normal)) {
             //this.pysikForce.y += -10;
-            this.pysikForce.y += -4.5;
+            this.pysikForce.y += -5;
             if (playerControlButtons.left.pressed) {
                 this.playerStatus = Status.JumpingLeft;
             } else {

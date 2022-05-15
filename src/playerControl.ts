@@ -1,6 +1,6 @@
 import { Player } from "./player";
 import { moveObjects } from "./utilities";
-import { background, getGameStatus, leftBarrier, rightBarrier } from "./worldSettings";
+import { background, gameStatus, leftBarrier, rightBarrier } from "./worldSettings";
 
 // Dieses Modul repäsentiert die Spielersteuerung und all seinen Functionen.
 export let playerControlButtons = {
@@ -75,7 +75,7 @@ addEventListener('keyup', (event: KeyboardEvent) => {
 
 export function playerMovementControl(player: Player): void {
     let xSpeed = 2;
-    if (getGameStatus() == "On-Going") {
+    if (gameStatus == "On-Going") {
         if (playerControlButtons.left.pressed) {
             if (player.position.x - xSpeed < leftBarrier) {
                 if (background.deltaX != 0) {
