@@ -1,7 +1,10 @@
 // Dieses Modul repäsentiert das Spieler Modell und all seinen Functionen.
 
+import { playerControlButtons } from "./playerControl";
+import { getGameStatus } from "./worldSettings";
+
 //Hier steht der Status was das Spieler Modell Sein kann. Wurde als Enum probiert. um zu sehen ob Enums in Typescript gehen. 
-enum Status {
+export enum Status {
     Normal, JumpingLeft, JumpingRight, Dead
 }
 
@@ -47,7 +50,7 @@ export class Player {
         }
         this.pysikForce = {
             x: 0, // Kraft in x Richtung (könnte Wind sein)
-            y: 5  // Gravitation nach unten
+            y: 0.5  // Gravitation nach unten
         }
         this.width = 75  // Breite des Spielers
         this.height = 75 // Höhe des Spielers
@@ -69,29 +72,27 @@ export class Player {
     // wird nach jedem Zeitintervall aufgerufen. Updatet die Position etc. 
     update(): void {
         let roundString: string;
-        //this.eraseOldFrame();
         roundString = (this.position.y + this.pysikForce.y).toFixed(3);
         this.position.y = Number(roundString);
         roundString = (this.position.x + this.pysikForce.x).toFixed(3);
         this.position.x = Number(roundString);
-        this.animateMovement();
+        this.animaton();
     }
 
     moveHorizontal(force: number): void {
-        // if (gameStatus == "On-Going") {
-        //     this.pysikForce.x = force;
-        // } else {
-        //     this.pysikForce.x = 0;
-        // }
-        this.pysikForce.x = force
-        //Abfrage nach dem gameStatus muss Außerhalb der Classe erfolgen. 
+        if (getGameStatus() == "On-Going") {
+             this.pysikForce.x = force;
+        } else {
+             this.pysikForce.x = 0;
+        }
+        //this.pysikForce.x = force
     }
 
-    jump(leftJump:boolean): void {
+    jump(): void {
         if (this.playerStatus == (Status.Normal)) {
             //this.pysikForce.y += -10;
             this.pysikForce.y += -4.5;
-            if (leftJump) {
+            if (playerControlButtons.left.pressed) {
                 this.playerStatus = Status.JumpingLeft;
             } else {
                 this.playerStatus = Status.JumpingRight;
@@ -100,13 +101,14 @@ export class Player {
     }
 
     // Muss in der PlayerControl gesetzt werden
-    public setAnimationImages(moveDirection?:"left" | "right"):void {
-        if(moveDirection=="left") {
+    public setAnimationImages():void {
+        //playerControlButtons.left.pressed && this.playerStatus == Status.Normal
+        if(playerControlButtons.left.pressed && this.playerStatus == Status.Normal) {
             //movement left
             this.aktuelImgCount = this.runImgCount;
             this.aktuelUrl = this.runUrlBase;
             this.left = true;
-        } else if (moveDirection=="right") {
+        } else if (playerControlButtons.right.pressed && this.playerStatus == Status.Normal) {
             //movement right
             this.aktuelImgCount = this.runImgCount;
             this.aktuelUrl = this.runUrlBase;
@@ -135,12 +137,11 @@ export class Player {
 
     }
 
-    // Abfrage nach dem gameStatus muss Außerhalb der Classe erfolgen.
-    // Bewegungsrichtung ebenfalls 
-    private animateMovement(): void {
+    //animiert die Bewegungen
+    private animaton(): void {
         
         //Bilder Ordner sind gesetzt in den variablen 
-
+        this.setAnimationImages()
         //Frame rate der Animation wird in abhängigkeit des status gesetzt
         if (this.playerStatus == Status.Dead) {
             if ((++this.frameDivider) % 10 == 0) {

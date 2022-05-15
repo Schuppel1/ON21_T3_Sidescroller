@@ -62,3 +62,9 @@ export class Obstacle {
         this.animation();
     }
 }
+
+export function updateAllObstacle(obstacles:Obstacle[]): void {
+    obstacles.forEach(element => {
+        element.update();
+    });
+}
