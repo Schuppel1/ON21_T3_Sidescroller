@@ -1,7 +1,7 @@
 import { Player } from "./player"
 import { Obstacle, updateAllObstacle } from "./obstacle"
 import { Plattform, updateAllPlattforms } from "./plattforms"
-import { gameStatus, leftBarrier, loadBackground, setGamesize, setGameStatus, setLeftBarrier, setRightBarrier } from "./worldSettings"
+import { gameStatus, leftViewBarrier, loadBackground, setGamesize, setGameStatus, setLeftBarrier, setRightBarrier } from "./worldSettings"
 import { playerMovementControl } from "./playerControl"
 import { checkAllCollision, checkForWin, checkIfDead, gameOverText, gewonnenTextGame, pauseText, reset } from "./utilities"
 import { introText, loadExampleMap, portal } from "./maps"
@@ -14,7 +14,7 @@ export let plattforms: Plattform[] = [] //Hier sind alle Plattformen drin.
 //die Obstacle dienen nur dem Styling. Haben keinen Effekt was Collision angeht. 
 export let groundObstacle: Obstacle[] = [] //Hier sind alle Plattformen drin.
 //Spieler wird erstellt
-const player: Player = new Player(context!, leftBarrier + 20)
+const player: Player = new Player(context!, leftViewBarrier + 20)
 
 loadExampleMap(context!,plattforms, groundObstacle )
 
@@ -41,6 +41,7 @@ function animate(): void {
             gameOverText(context!)
             if (inputControlButtons.yes.pressed) {
                 reset(player, plattforms, groundObstacle)
+                loadExampleMap(context!,plattforms, groundObstacle )
             }
             break
         case "Pause":
@@ -53,6 +54,7 @@ function animate(): void {
             gewonnenTextGame(context!)
             if (inputControlButtons.yes.pressed) {
                 reset(player, plattforms, groundObstacle)
+                loadExampleMap(context!,plattforms, groundObstacle )
             }
             break
         case "On-Going":

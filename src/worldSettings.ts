@@ -2,11 +2,10 @@
 export const gravitiy: number = .05
 
 export let gameStatus: "Gewonnen" | "Game-Over" | "Pause" | "On-Going" | "Intro" = "On-Going"
-export let endOfMap: number= 2000
-export let rightBarrier = 4 * innerWidth / 5
-export let leftBarrier = innerWidth / 5
+export let endOfMap: number = 0
+export let rightViewBarrier = 4 * innerWidth / 5
+export let leftViewBarrier = innerWidth / 5
 
-//1920x663
 export let background: { picture: HTMLImageElement, deltaX: number } = {
     picture: new Image(),
     deltaX: 0,
@@ -40,11 +39,11 @@ export function setGamesize(canvas: HTMLCanvasElement): void {
 }
 
 export function setLeftBarrier(value:number) {
-    leftBarrier= value
+    leftViewBarrier= value
 }
 
 export function setRightBarrier(value:number) {
-    rightBarrier= value
+    rightViewBarrier= value
 }
 
 export function loadBackground(context: CanvasRenderingContext2D): void {

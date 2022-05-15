@@ -3,7 +3,7 @@ import { Obstacle } from "./obstacle"
 import { Plattform } from "./plattforms"
 import { Player } from "./player"
 import { moveObjects } from "./utilities"
-import { background, endOfMap, gameStatus, leftBarrier, rightBarrier } from "./worldSettings"
+import { background, endOfMap, gameStatus, leftViewBarrier, rightViewBarrier } from "./worldSettings"
 
 // Dieses Modul repäsentiert die Spielersteuerung und all seinen Functionen.
 
@@ -12,7 +12,7 @@ export function playerMovementControl(player: Player, plattforms: Plattform[], o
     let xSpeed = 2
     if (gameStatus == "On-Going") {
         if (inputControlButtons.left.pressed) {
-            if (player.position.x - xSpeed < leftBarrier) {
+            if (player.position.x - xSpeed < leftViewBarrier) {
                 if (background.deltaX != 0) {
                     background.deltaX -= 0.5
                     moveObjects(-xSpeed, plattforms, obstacles)
@@ -25,7 +25,7 @@ export function playerMovementControl(player: Player, plattforms: Plattform[], o
         } else if (inputControlButtons.right.pressed) {
             if (player.position.x + player.width + xSpeed > endOfMap) {
                 player.moveHorizontal(0);
-            } else if (player.position.x + player.width + xSpeed > rightBarrier) {
+            } else if (player.position.x + player.width + xSpeed > rightViewBarrier) {
                 console.log(endOfMap);
                 
                 if (endOfMap <= window.innerWidth - 10) {
