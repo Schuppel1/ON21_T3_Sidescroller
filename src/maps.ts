@@ -34,8 +34,15 @@ export function loadExampleMap(context: CanvasRenderingContext2D, plattforms: Pl
 
 
     //IcePlatten sind nur 100Pixel Breit. Werden Hier zum Springen genutzt
-    plattforms.push(new IcePlattform(500, innerHeight - 350, context!))
-    plattforms.push(new IcePlattform(600, innerHeight - 350, context!))
+    plattforms.push(new IcePlattform(1500, innerHeight - 350, context!))
+    plattforms.push(new IcePlattform(1600, innerHeight - 350, context!))
+    plattforms.push(new IcePlattform(1700, innerHeight - 350, context!))
+    plattforms.push(new IcePlattform(2000, innerHeight - 550, context!))
+    plattforms.push(new IcePlattform(2100, innerHeight - 550, context!))
+    plattforms.push(new IcePlattform(2400, innerHeight - 750, context!))
+    plattforms.push(new IcePlattform(2500, innerHeight - 750, context!))
+    plattforms.push(new IcePlattform(3100, innerHeight - 350, context!))
+
     setBackground("./img/background/forest0.jpg")
     setEndOfMap(4450)
 

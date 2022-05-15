@@ -1,22 +1,10 @@
 import { Obstacle } from "./obstacle"
 import { Plattform } from "./plattforms"
 import { Player, Status } from "./player"
-import { endOfMap, gravitiy, resetWorld, setEndOfMap} from "./worldSettings"
+import { resetWorld} from "./worldSettings"
 
 
 //left = true Hintergrund nach links verschieben. 
-export function moveObjects(force: number, plattforms:Plattform[],groundObstacle:Obstacle[]): void {
-    plattforms.forEach(function (item) {
-        item.position.x -= force
-    })
-
-    groundObstacle.forEach(function (item) {
-        item.position.x -= force
-    })
-
-    setEndOfMap(endOfMap - force)
-    //HintergrundBild muss noch verschoben werden. Aber Async
-}
 
 export function checkIfDead(player:Player, canvas: HTMLCanvasElement): boolean {
     if (player.position.y + player.height >= canvas.height) {
@@ -25,39 +13,6 @@ export function checkIfDead(player:Player, canvas: HTMLCanvasElement): boolean {
     } else {
         return false
     }
-}
-
-
-
-export function checkAllCollision(player:Player,plattforms:Plattform[], canvas: HTMLCanvasElement): boolean {
-    let standOnPlattform: boolean = false
-    let collisionPlattformHeight: number = player.position.y
-
-    //Überprüffung Kollision mit einer Plattform
-    for (let element of plattforms) {
-        if (element.standOnTop(player)) {
-            //Falls durch die gravitation nicht direkt position auf der Plattform erreicht wird
-            collisionPlattformHeight = element.position.y
-            standOnPlattform = true
-            break
-        }
-    }
-
-    if (standOnPlattform) {
-        player.playerStatus = Status.Normal
-        player.pysikForce.y = 0
-        player.position.y = collisionPlattformHeight - player.height
-    } else if (player.position.y + player.height < canvas.height) {
-        player.pysikForce.y += gravitiy
-
-    } else {
-        if (player.pysikForce.y > 0) {
-            player.playerStatus = Status.Dead
-            player.pysikForce.y = 0
-        }
-    }
-    
-    return standOnPlattform
 }
 
 export function checkForWin(player:Player, portal:Obstacle): boolean {

@@ -1,11 +1,55 @@
 import { inputControlButtons } from "./inputControl"
 import { Obstacle } from "./obstacle"
 import { Plattform } from "./plattforms"
-import { Player } from "./player"
-import { moveObjects } from "./utilities"
-import { background, endOfMap, gameStatus, leftViewBarrier, rightViewBarrier } from "./worldSettings"
+import { Player, Status } from "./player"
+import { background, endOfMap, gameStatus, gravitiy, leftViewBarrier, rightViewBarrier, setEndOfMap } from "./worldSettings"
 
 // Dieses Modul repäsentiert die Spielersteuerung und all seinen Functionen.
+
+export function checkAllCollision(player:Player,plattforms:Plattform[], canvas: HTMLCanvasElement): boolean {
+    let standOnPlattform: boolean = false
+    let collisionPlattformHeight: number = player.position.y
+
+    //Überprüffung Kollision mit einer Plattform
+    for (let element of plattforms) {
+        if (element.standOnTop(player)) {
+            //Falls durch die gravitation nicht direkt position auf der Plattform erreicht wird
+            collisionPlattformHeight = element.position.y
+            standOnPlattform = true
+            break
+        }
+    }
+
+    if (standOnPlattform) {
+        player.playerStatus = Status.Normal
+        player.pysikForce.y = 0
+        player.position.y = collisionPlattformHeight - player.height
+    } else if (player.position.y + player.height < canvas.height) {
+        player.pysikForce.y += gravitiy
+
+    } else {
+        if (player.pysikForce.y > 0) {
+            player.playerStatus = Status.Dead
+            player.pysikForce.y = 0
+        }
+    }
+    
+    return standOnPlattform
+}
+
+
+function moveObjects(force: number, plattforms:Plattform[],groundObstacle:Obstacle[]): void {
+    plattforms.forEach(function (item) {
+        item.position.x -= force
+    })
+
+    groundObstacle.forEach(function (item) {
+        item.position.x -= force
+    })
+
+    setEndOfMap(endOfMap - force)
+    //HintergrundBild muss noch verschoben werden. Aber Async
+}
 
 
 export function movementControl(player: Player, plattforms: Plattform[], obstacles: Obstacle[]): void {

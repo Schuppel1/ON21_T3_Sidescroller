@@ -76,18 +76,21 @@ export function updateAllObstacle(obstacles: Obstacle[]): void {
     })
 }
 
+//Dimension 100px Breite 100px Höhe 
 export class Flame extends Obstacle {
     constructor(positionX: number, positionY: number, context: CanvasRenderingContext2D) {
         super(context, positionX, positionY, 100, 100, "./img/obstacle/flame/fire", 256, 256, true, 13)
     }
 }
 
+//Dimension 50px Breite 80px Höhe 
 export class Spike extends Obstacle {
     constructor(positionX: number, positionY: number, context: CanvasRenderingContext2D) {
         super(context, positionX, positionY, 50, 80, "./img/obstacle/spike/spike.png", 139, 250)
     }
 }
 
+//Dimension 300px Breite 300px Höhe 
 export class Portal extends Obstacle {
     constructor(positionX: number, positionY: number, context: CanvasRenderingContext2D) {
         super(context, positionX, positionY, 300, 300, "./img/obstacle/portal/portalleft.png", 1025, 1025)
